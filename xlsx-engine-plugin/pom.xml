@@ -39,6 +39,12 @@
       <artifactId>dmn-xlsx-converter</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.16</version>
+    </dependency>
 
     <!-- test -->
     <dependency>

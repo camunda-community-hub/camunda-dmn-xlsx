@@ -12,14 +12,15 @@
  */
 package org.camunda.bpm.xlsx.plugin;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
 
 import org.camunda.bpm.dmn.engine.DmnDecisionTableResult;
 import org.camunda.bpm.engine.repository.DecisionDefinition;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.variable.Variables;
+import org.camunda.bpm.model.dmn.DmnModelInstance;
+import org.camunda.bpm.model.dmn.instance.DecisionTable;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -55,6 +56,29 @@ public class XlsxDeploymentTest {
     // then
     DecisionDefinition decisionDefinition = rule.getRepositoryService().createDecisionDefinitionQuery().singleResult();
     Assert.assertNotNull(decisionDefinition);
+  }
+
+  @Test
+  public void testXlsxDeploymentWithMetaData() {
+    // when
+    deployment = rule.getRepositoryService()
+      .createDeployment()
+      .addClasspathResource("test1.xlsx")
+      .addClasspathResource("test1.xlsx.yaml")
+      .deploy()
+      .getId();
+
+    // then
+    DecisionDefinition decisionDefinition = rule.getRepositoryService().createDecisionDefinitionQuery().singleResult();
+    Assert.assertNotNull(decisionDefinition);
+
+    DmnModelInstance dmnModel = rule.getRepositoryService().getDmnModelInstance(decisionDefinition.getId());
+    Collection<DecisionTable> decisionTables = dmnModel.getModelElementsByType(DecisionTable.class);
+    Assert.assertEquals(1, decisionTables.size());
+
+    DecisionTable decisionTable = decisionTables.iterator().next();
+    Assert.assertEquals(1, decisionTable.getInputs().size());
+    Assert.assertEquals(1, decisionTable.getOutputs().size());
 
   }
 
