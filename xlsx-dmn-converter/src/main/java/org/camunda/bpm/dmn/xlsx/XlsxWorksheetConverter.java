@@ -41,10 +41,12 @@ public class XlsxWorksheetConverter {
 
   protected XlsxWorksheetContext worksheetContext;
   protected DmnConversionContext dmnConversionContext;
+  protected InputOutputDetectionStrategy ioDetectionStrategy;
 
-  public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext) {
+  public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext, InputOutputDetectionStrategy ioDetectionStrategy) {
     this.worksheetContext = worksheetContext;
     this.dmnConversionContext = new DmnConversionContext(worksheetContext);
+    this.ioDetectionStrategy = ioDetectionStrategy;
 
     // order is important
     this.dmnConversionContext.addCellContentHandler(new FeelSimpleUnaryTestConverter());
@@ -71,16 +73,11 @@ public class XlsxWorksheetConverter {
   }
 
   protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable, IndexedRow header) {
-    // TODO: initial simple implementation: last entry is output, all others are inputs
-    if (!header.hasCells()) {
-      throw new RuntimeException("A dmn table requires at least one output; the header row contains no entries");
-    }
 
-    List<IndexedCell> cells = header.getCells();
+    InputOutputColumns inputOutputColumns = ioDetectionStrategy.determineHeaderCells(header, worksheetContext);
 
     // inputs
-    for (int i = 0; i < cells.size() - 1; i++) {
-      IndexedCell inputCell = cells.get(i);
+    for (IndexedCell inputCell : inputOutputColumns.getInputHeaderCells()) {
       Input input = generateElement(dmnModel, Input.class, worksheetContext.resolveCellValue(inputCell.getCell()));
       decisionTable.addChildElement(input);
 
@@ -92,13 +89,15 @@ public class XlsxWorksheetConverter {
       dmnConversionContext.getIndexedDmnColumns().addInput(inputCell, input);
     }
 
-    // output
-    IndexedCell outputCell = cells.get(cells.size() - 1);
-    Output output = generateElement(dmnModel, Output.class, worksheetContext.resolveCellValue(outputCell.getCell()));
-    output.setName(worksheetContext.resolveCellValue(outputCell.getCell()));
-    decisionTable.addChildElement(output);
+    // outputs
+    for (IndexedCell outputCell : inputOutputColumns.getOutputHeaderCells()) {
+      Output output = generateElement(dmnModel, Output.class, worksheetContext.resolveCellValue(outputCell.getCell()));
+      output.setName(worksheetContext.resolveCellValue(outputCell.getCell()));
+      decisionTable.addChildElement(output);
 
-    dmnConversionContext.getIndexedDmnColumns().addOutput(outputCell, output);
+      dmnConversionContext.getIndexedDmnColumns().addOutput(outputCell, output);
+    }
+
   }
 
   protected void convertRules(DmnModelInstance dmnModel, DecisionTable decisionTable, List<IndexedRow> rulesRows) {

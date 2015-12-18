@@ -13,11 +13,8 @@
 package org.camunda.bpm.dmn.xlsx;
 
 import java.io.InputStream;
-import java.util.Collection;
 
-import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
-import org.camunda.bpm.model.dmn.instance.Decision;
 import org.camunda.bpm.model.dmn.instance.DecisionTable;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,11 +30,11 @@ public class XslxToDmnConversionTest {
   @Test
   public void testSimpleConversion() {
     XlsxConverter converter = new XlsxConverter();
-    InputStream inputStream = getClassPathResource("test1.xlsx");
+    InputStream inputStream = TestHelper.getClassPathResource("test1.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
     Assert.assertNotNull(dmnModelInstance);
 
-    DecisionTable table = assertAndGetSingleDecisionTable(dmnModelInstance);
+    DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
     Assert.assertNotNull(table);
     Assert.assertEquals(2, table.getInputs().size());
     Assert.assertEquals(1, table.getOutputs().size());
@@ -47,11 +44,11 @@ public class XslxToDmnConversionTest {
   @Test
   public void testConversionOfMixedNumberAndStringColumns() {
     XlsxConverter converter = new XlsxConverter();
-    InputStream inputStream = getClassPathResource("test2.xlsx");
+    InputStream inputStream = TestHelper.getClassPathResource("test2.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
     Assert.assertNotNull(dmnModelInstance);
 
-    DecisionTable table = assertAndGetSingleDecisionTable(dmnModelInstance);
+    DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
     Assert.assertNotNull(table);
     Assert.assertEquals(3, table.getInputs().size());
     Assert.assertEquals(1, table.getOutputs().size());
@@ -61,37 +58,14 @@ public class XslxToDmnConversionTest {
   @Test
   public void testConversionOfEmptyCells() {
     XlsxConverter converter = new XlsxConverter();
-    InputStream inputStream = getClassPathResource("test3.xlsx");
+    InputStream inputStream = TestHelper.getClassPathResource("test3.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
     Assert.assertNotNull(dmnModelInstance);
 
-    DecisionTable table = assertAndGetSingleDecisionTable(dmnModelInstance);
+    DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
     Assert.assertNotNull(table);
     Assert.assertEquals(3, table.getInputs().size());
     Assert.assertEquals(1, table.getOutputs().size());
     Assert.assertEquals(4, table.getRules().size());
   }
-
-  protected DecisionTable assertAndGetSingleDecisionTable(DmnModelInstance dmnModel) {
-    Assert.assertNotNull(dmnModel.getDefinitions());
-    Collection<Decision> decisions = dmnModel.getDefinitions().getChildElementsByType(Decision.class);
-    Assert.assertEquals(1, decisions.size());
-
-    Decision decision = decisions.iterator().next();
-    Assert.assertNotNull(decision);
-
-    Collection<DecisionTable> decisionTables = decision.getChildElementsByType(DecisionTable.class);
-    Assert.assertEquals(1, decisionTables.size());
-
-    return decisionTables.iterator().next();
-  }
-
-  // TODO: test conversion where file has numeric input
-
-  // TODO: test conversion where an intermediary cell is empty
-
-  protected InputStream getClassPathResource(String path) {
-    return getClass().getClassLoader().getResourceAsStream(path);
-  }
-
 }

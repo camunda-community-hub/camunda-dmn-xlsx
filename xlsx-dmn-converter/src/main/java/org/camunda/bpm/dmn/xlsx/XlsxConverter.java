@@ -30,6 +30,8 @@ import org.xlsx4j.sml.Worksheet;
  */
 public class XlsxConverter {
 
+  protected InputOutputDetectionStrategy ioDetectionStrategy = new SimpleInputOutputDetectionStrategy();
+
   public DmnModelInstance convert(InputStream inputStream) {
     SpreadsheetMLPackage spreadSheetPackage = null;
     try {
@@ -53,6 +55,15 @@ public class XlsxConverter {
       throw new RuntimeException("Could not determine worksheet", e);
     }
 
-    return new XlsxWorksheetConverter(worksheetContext).convert();
+    return new XlsxWorksheetConverter(worksheetContext, ioDetectionStrategy).convert();
   }
+
+  public InputOutputDetectionStrategy getIoDetectionStrategy() {
+    return ioDetectionStrategy;
+  }
+
+  public void setIoDetectionStrategy(InputOutputDetectionStrategy ioDetectionStrategy) {
+    this.ioDetectionStrategy = ioDetectionStrategy;
+  }
+
 }
