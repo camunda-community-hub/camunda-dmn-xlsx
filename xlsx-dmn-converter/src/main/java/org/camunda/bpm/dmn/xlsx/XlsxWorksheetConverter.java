@@ -58,7 +58,7 @@ public class XlsxWorksheetConverter {
 
     DmnModelInstance dmnModel = initializeEmptyDmnModel();
 
-    Decision decision = generateNamedElement(dmnModel, Decision.class, "decision");
+    Decision decision = generateNamedElement(dmnModel, Decision.class, worksheetContext.getWorksheetName());
     dmnModel.getDefinitions().addChildElement(decision);
 
     DecisionTable decisionTable = generateElement(dmnModel, DecisionTable.class, "decisionTable");

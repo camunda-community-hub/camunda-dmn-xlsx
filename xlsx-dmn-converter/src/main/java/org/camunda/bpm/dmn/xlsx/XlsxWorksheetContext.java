@@ -32,14 +32,16 @@ public class XlsxWorksheetContext {
   protected List<CellContentHandler> cellContentHandlers;
   protected CTSst sharedStrings;
   protected Worksheet worksheet;
+  protected String worksheetName;
 
   // cached state
   protected List<IndexedRow> indexedRows;
 
-  public XlsxWorksheetContext(CTSst sharedStrings, Worksheet worksheet) {
+  public XlsxWorksheetContext(CTSst sharedStrings, Worksheet worksheet, String worksheetName) {
     this.sharedStrings = sharedStrings;
     this.worksheet = worksheet;
     this.cellContentHandlers = new ArrayList<CellContentHandler>();
+    this.worksheetName = worksheetName;
   }
 
   public List<IndexedRow> getRows() {
@@ -66,6 +68,10 @@ public class XlsxWorksheetContext {
     else {
       return cell.getV();
     }
+  }
+
+  public String getWorksheetName() {
+    return worksheetName;
   }
 
 }

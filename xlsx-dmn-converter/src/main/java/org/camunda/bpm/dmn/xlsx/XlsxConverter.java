@@ -14,7 +14,10 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.io.InputStream;
 
+import org.apache.fop.fo.properties.Property;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
+import org.docx4j.docProps.core.CoreProperties;
+import org.docx4j.docProps.extended.Properties;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.OpcPackage;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
@@ -48,9 +51,12 @@ public class XlsxConverter {
 
     WorksheetPart worksheetPart;
     try {
+      Properties properties = spreadSheetPackage.getDocPropsExtendedPart().getContents();
+      String worksheetName = (String) properties.getTitlesOfParts().getVector().getVariantOrI1OrI2().get(0).getValue();
       worksheetPart = workbookPart.getWorksheet(0);
+
       SharedStrings sharedStrings = workbookPart.getSharedStrings();
-      worksheetContext = new XlsxWorksheetContext(sharedStrings.getContents(), worksheetPart.getContents());
+      worksheetContext = new XlsxWorksheetContext(sharedStrings.getContents(), worksheetPart.getContents(), worksheetName);
     } catch (Exception e) {
       throw new RuntimeException("Could not determine worksheet", e);
     }

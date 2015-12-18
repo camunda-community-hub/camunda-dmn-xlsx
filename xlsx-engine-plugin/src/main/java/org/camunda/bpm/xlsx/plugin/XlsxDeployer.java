@@ -36,6 +36,11 @@ public class XlsxDeployer implements Deployer {
   public static final String XLSX_RESOURCE_SUFFIX = "xlsx";
 
   public void deploy(DeploymentEntity deployment) {
+    if (!deployment.isNew()) {
+      // only generate dmn xml once when deploying for the first time
+      return;
+    }
+
     List<ResourceEntity> generatedResources = new ArrayList<ResourceEntity>();
 
     for (ResourceEntity resource : deployment.getResources().values()) {
