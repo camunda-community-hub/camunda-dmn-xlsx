@@ -14,6 +14,9 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.util.List;
 
+import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
+import org.camunda.bpm.dmn.xlsx.elements.IndexedDmnColumns;
+import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
 import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.bpm.model.dmn.impl.DmnModelConstants;
@@ -29,8 +32,6 @@ import org.camunda.bpm.model.dmn.instance.Output;
 import org.camunda.bpm.model.dmn.instance.OutputEntry;
 import org.camunda.bpm.model.dmn.instance.Rule;
 import org.camunda.bpm.model.dmn.instance.Text;
-import org.xlsx4j.sml.Cell;
-import org.xlsx4j.sml.Row;
 
 /**
  * @author Thorben Lindhauer
@@ -61,7 +62,7 @@ public class XlsxWorksheetConverter {
     DecisionTable decisionTable = generateElement(dmnModel, DecisionTable.class, "decisionTable");
     decision.addChildElement(decisionTable);
 
-    List<Row> rows = worksheetContext.getRows();
+    List<IndexedRow> rows = worksheetContext.getRows();
 
     convertInputsOutputs(dmnModel, decisionTable, rows.get(0));
     convertRules(dmnModel, decisionTable, rows.subList(1, rows.size()));
@@ -69,66 +70,76 @@ public class XlsxWorksheetConverter {
     return dmnModel;
   }
 
-  protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable, Row header) {
+  protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable, IndexedRow header) {
     // TODO: initial simple implementation: last entry is output, all others are inputs
-    List<Cell> cells = header.getC();
-    if (cells == null || cells.isEmpty()) {
+    if (!header.hasCells()) {
       throw new RuntimeException("A dmn table requires at least one output; the header row contains no entries");
     }
 
+    List<IndexedCell> cells = header.getCells();
 
     // inputs
     for (int i = 0; i < cells.size() - 1; i++) {
-      Cell inputCell = cells.get(i);
-      Input input = generateElement(dmnModel, Input.class, worksheetContext.resolveCellValue(inputCell));
+      IndexedCell inputCell = cells.get(i);
+      Input input = generateElement(dmnModel, Input.class, worksheetContext.resolveCellValue(inputCell.getCell()));
       decisionTable.addChildElement(input);
 
       InputExpression inputExpression = generateElement(dmnModel, InputExpression.class);
-      Text text = generateText(dmnModel, worksheetContext.resolveCellValue(inputCell));
+      Text text = generateText(dmnModel, worksheetContext.resolveCellValue(inputCell.getCell()));
       inputExpression.setText(text);
       input.setInputExpression(inputExpression);
+
+      dmnConversionContext.getIndexedDmnColumns().addInput(inputCell, input);
     }
 
     // output
-    Cell outputCell = cells.get(cells.size() - 1);
-    Output output = generateElement(dmnModel, Output.class, worksheetContext.resolveCellValue(outputCell));
-    output.setName(worksheetContext.resolveCellValue(outputCell));
+    IndexedCell outputCell = cells.get(cells.size() - 1);
+    Output output = generateElement(dmnModel, Output.class, worksheetContext.resolveCellValue(outputCell.getCell()));
+    output.setName(worksheetContext.resolveCellValue(outputCell.getCell()));
     decisionTable.addChildElement(output);
+
+    dmnConversionContext.getIndexedDmnColumns().addOutput(outputCell, output);
   }
 
-  protected void convertRules(DmnModelInstance dmnModel, DecisionTable decisionTable, List<Row> rulesRows) {
-    for (Row rule : rulesRows) {
+  protected void convertRules(DmnModelInstance dmnModel, DecisionTable decisionTable, List<IndexedRow> rulesRows) {
+    for (IndexedRow rule : rulesRows) {
       convertRule(dmnModel, decisionTable, rule);
     }
   }
 
-  protected void convertRule(DmnModelInstance dmnModel, DecisionTable decisionTable, Row ruleRow) {
-    Rule rule = generateElement(dmnModel, Rule.class, "excelRow" + ruleRow.getR());
+  protected void convertRule(DmnModelInstance dmnModel, DecisionTable decisionTable, IndexedRow ruleRow) {
+    Rule rule = generateElement(dmnModel, Rule.class, "excelRow" + ruleRow.getRow().getR());
     decisionTable.addChildElement(rule);
 
-    int numInputs = decisionTable.getInputs().size();
-    List<Cell> cells = ruleRow.getC();
+    IndexedDmnColumns dmnColumns = dmnConversionContext.getIndexedDmnColumns();
 
-    for (int i = 0; i < numInputs; i++) {
-      Cell cell = cells.get(i);
+    for (Input input : dmnColumns.getOrderedInputs()) {
+      String xlsxColumn = dmnColumns.getXlsxColumn(input);
+      IndexedCell cell = ruleRow.getCell(xlsxColumn);
+      String coordinate = xlsxColumn + ruleRow.getRow().getR();
 
-      InputEntry inputEntry = generateElement(dmnModel, InputEntry.class, cell.getR());
-      Text text = generateText(dmnModel, dmnConversionContext.resolveCellValue(cell));
+      InputEntry inputEntry = generateElement(dmnModel, InputEntry.class, coordinate);
+      String textValue = cell != null ? dmnConversionContext.resolveCellValue(cell.getCell()) : getDefaultCellContent();
+      Text text = generateText(dmnModel, textValue);
       inputEntry.setText(text);
       rule.addChildElement(inputEntry);
     }
 
-    int numOutputs = decisionTable.getOutputs().size();
+    for (Output output : dmnColumns.getOrderedOutputs()) {
+      String xlsxColumn = dmnColumns.getXlsxColumn(output);
+      IndexedCell cell = ruleRow.getCell(xlsxColumn);
+      String coordinate = xlsxColumn + ruleRow.getRow().getR();
 
-    for (int i = 0; i < numOutputs; i++) {
-      Cell cell = cells.get(numInputs + i);
-
-      OutputEntry outputEntry = generateElement(dmnModel, OutputEntry.class, cell.getR());
-      Text text = generateText(dmnModel, dmnConversionContext.resolveCellValue(cell));
+      OutputEntry outputEntry = generateElement(dmnModel, OutputEntry.class, coordinate);
+      String textValue = cell != null ? dmnConversionContext.resolveCellValue(cell.getCell()) : getDefaultCellContent();
+      Text text = generateText(dmnModel, textValue);
       outputEntry.setText(text);
       rule.addChildElement(outputEntry);
     }
+  }
 
+  protected String getDefaultCellContent() {
+    return "-";
   }
 
   protected DmnModelInstance initializeEmptyDmnModel() {

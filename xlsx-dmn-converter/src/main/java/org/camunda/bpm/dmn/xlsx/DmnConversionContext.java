@@ -15,6 +15,7 @@ package org.camunda.bpm.dmn.xlsx;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.camunda.bpm.dmn.xlsx.elements.IndexedDmnColumns;
 import org.xlsx4j.sml.Cell;
 
 /**
@@ -25,6 +26,8 @@ public class DmnConversionContext {
 
   protected List<CellContentHandler> cellContentHandlers = new ArrayList<CellContentHandler>();
   protected XlsxWorksheetContext worksheetContext;
+
+  protected IndexedDmnColumns indexedDmnColumns = new IndexedDmnColumns();
 
   public DmnConversionContext(XlsxWorksheetContext worksheetContext) {
     this.worksheetContext = worksheetContext;
@@ -42,6 +45,10 @@ public class DmnConversionContext {
 
   public void addCellContentHandler(CellContentHandler cellContentHandler) {
     this.cellContentHandlers.add(cellContentHandler);
+  }
+
+  public IndexedDmnColumns getIndexedDmnColumns() {
+    return indexedDmnColumns;
   }
 
 }

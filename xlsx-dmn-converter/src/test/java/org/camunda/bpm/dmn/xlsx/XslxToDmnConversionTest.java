@@ -58,6 +58,20 @@ public class XslxToDmnConversionTest {
     Assert.assertEquals(4, table.getRules().size());
   }
 
+  @Test
+  public void testConversionOfEmptyCells() {
+    XlsxConverter converter = new XlsxConverter();
+    InputStream inputStream = getClassPathResource("test3.xlsx");
+    DmnModelInstance dmnModelInstance = converter.convert(inputStream);
+    Assert.assertNotNull(dmnModelInstance);
+
+    DecisionTable table = assertAndGetSingleDecisionTable(dmnModelInstance);
+    Assert.assertNotNull(table);
+    Assert.assertEquals(3, table.getInputs().size());
+    Assert.assertEquals(1, table.getOutputs().size());
+    Assert.assertEquals(4, table.getRules().size());
+  }
+
   protected DecisionTable assertAndGetSingleDecisionTable(DmnModelInstance dmnModel) {
     Assert.assertNotNull(dmnModel.getDefinitions());
     Collection<Decision> decisions = dmnModel.getDefinitions().getChildElementsByType(Decision.class);

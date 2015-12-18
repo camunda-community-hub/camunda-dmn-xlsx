@@ -19,4 +19,4 @@ faces-config.NavData
 *.lock.db
 
 *.DS_Store
-~$
+~$*

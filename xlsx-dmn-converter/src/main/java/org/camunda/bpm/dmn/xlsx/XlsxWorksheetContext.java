@@ -15,6 +15,7 @@ package org.camunda.bpm.dmn.xlsx;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
 import org.xlsx4j.sml.CTRst;
 import org.xlsx4j.sml.CTSst;
 import org.xlsx4j.sml.Cell;
@@ -32,14 +33,23 @@ public class XlsxWorksheetContext {
   protected CTSst sharedStrings;
   protected Worksheet worksheet;
 
+  // cached state
+  protected List<IndexedRow> indexedRows;
+
   public XlsxWorksheetContext(CTSst sharedStrings, Worksheet worksheet) {
     this.sharedStrings = sharedStrings;
     this.worksheet = worksheet;
     this.cellContentHandlers = new ArrayList<CellContentHandler>();
   }
 
-  public List<Row> getRows() {
-    return worksheet.getSheetData().getRow();
+  public List<IndexedRow> getRows() {
+    if (indexedRows == null) {
+      indexedRows = new ArrayList<IndexedRow>();
+      for (Row row : worksheet.getSheetData().getRow()) {
+        indexedRows.add(new IndexedRow(row));
+      }
+    }
+    return indexedRows;
   }
 
   public String resolveSharedString(int index) {
