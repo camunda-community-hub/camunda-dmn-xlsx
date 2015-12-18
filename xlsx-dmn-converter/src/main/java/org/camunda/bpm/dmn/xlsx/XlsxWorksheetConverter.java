@@ -107,7 +107,7 @@ public class XlsxWorksheetConverter {
       Cell cell = cells.get(i);
 
       InputEntry inputEntry = generateElement(dmnModel, InputEntry.class, cell.getR());
-      Text text = generateText(dmnModel, worksheetContext.resolveCellValue(cell, DmnValueStringConverter.INSTANCE));
+      Text text = generateText(dmnModel, convertCellEntryValue(cell));
       inputEntry.setText(text);
       rule.addChildElement(inputEntry);
     }
@@ -118,11 +118,27 @@ public class XlsxWorksheetConverter {
       Cell cell = cells.get(numInputs + i);
 
       OutputEntry outputEntry = generateElement(dmnModel, OutputEntry.class, cell.getR());
-      Text text = generateText(dmnModel, worksheetContext.resolveCellValue(cell, DmnValueStringConverter.INSTANCE));
+      Text text = generateText(dmnModel, convertCellEntryValue(cell));
       outputEntry.setText(text);
       rule.addChildElement(outputEntry);
     }
 
+  }
+
+  protected String convertCellEntryValue(Cell cell) {
+
+    String rawCellValue = worksheetContext.resolveCellValue(cell);
+    if (isFeelSimpleUnaryTest(rawCellValue)) {
+      return rawCellValue;
+    }
+    else {
+      return DmnValueStringConverter.INSTANCE.convert(rawCellValue);
+    }
+
+  }
+
+  protected boolean isFeelSimpleUnaryTest(String rawValue) {
+    return rawValue.startsWith("<") || rawValue.startsWith(">");
   }
 
   protected DmnModelInstance initializeEmptyDmnModel() {
