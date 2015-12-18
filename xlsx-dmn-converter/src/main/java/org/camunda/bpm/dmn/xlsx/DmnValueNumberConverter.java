@@ -19,17 +19,14 @@ import org.xlsx4j.sml.STCellType;
  * @author Thorben Lindhauer
  *
  */
-public class DmnValueStringConverter implements CellContentHandler {
-
-  public static final DmnValueStringConverter INSTANCE = new DmnValueStringConverter();
+public class DmnValueNumberConverter implements CellContentHandler {
 
   public boolean canConvert(Cell cell, XlsxWorksheetContext context) {
-    return STCellType.S.equals(cell.getT());
+    return STCellType.N.equals(cell.getT());
   }
 
   public String convert(Cell cell, XlsxWorksheetContext context) {
-    String content = context.resolveCellValue(cell);
-    return "\"" + content + "\"";
+    return cell.getV();
   }
 
 }

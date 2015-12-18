@@ -12,12 +12,16 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import org.xlsx4j.sml.Cell;
+
 /**
  * @author Thorben Lindhauer
  *
  */
-public interface CellContentConverter {
+public interface CellContentHandler {
 
-  String convert(String rawCellContent);
+  boolean canConvert(Cell cell, XlsxWorksheetContext context);
+
+  String convert(Cell cell, XlsxWorksheetContext context);
 
 }

@@ -12,7 +12,6 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.camunda.bpm.model.dmn.Dmn;
@@ -40,9 +39,16 @@ import org.xlsx4j.sml.Row;
 public class XlsxWorksheetConverter {
 
   protected XlsxWorksheetContext worksheetContext;
+  protected DmnConversionContext dmnConversionContext;
 
   public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext) {
     this.worksheetContext = worksheetContext;
+    this.dmnConversionContext = new DmnConversionContext(worksheetContext);
+
+    // order is important
+    this.dmnConversionContext.addCellContentHandler(new FeelSimpleUnaryTestConverter());
+    this.dmnConversionContext.addCellContentHandler(new DmnValueStringConverter());
+    this.dmnConversionContext.addCellContentHandler(new DmnValueNumberConverter());
   }
 
   public DmnModelInstance convert() {
@@ -107,7 +113,7 @@ public class XlsxWorksheetConverter {
       Cell cell = cells.get(i);
 
       InputEntry inputEntry = generateElement(dmnModel, InputEntry.class, cell.getR());
-      Text text = generateText(dmnModel, convertCellEntryValue(cell));
+      Text text = generateText(dmnModel, dmnConversionContext.resolveCellValue(cell));
       inputEntry.setText(text);
       rule.addChildElement(inputEntry);
     }
@@ -118,27 +124,11 @@ public class XlsxWorksheetConverter {
       Cell cell = cells.get(numInputs + i);
 
       OutputEntry outputEntry = generateElement(dmnModel, OutputEntry.class, cell.getR());
-      Text text = generateText(dmnModel, convertCellEntryValue(cell));
+      Text text = generateText(dmnModel, dmnConversionContext.resolveCellValue(cell));
       outputEntry.setText(text);
       rule.addChildElement(outputEntry);
     }
 
-  }
-
-  protected String convertCellEntryValue(Cell cell) {
-
-    String rawCellValue = worksheetContext.resolveCellValue(cell);
-    if (isFeelSimpleUnaryTest(rawCellValue)) {
-      return rawCellValue;
-    }
-    else {
-      return DmnValueStringConverter.INSTANCE.convert(rawCellValue);
-    }
-
-  }
-
-  protected boolean isFeelSimpleUnaryTest(String rawValue) {
-    return rawValue.startsWith("<") || rawValue.startsWith(">");
   }
 
   protected DmnModelInstance initializeEmptyDmnModel() {

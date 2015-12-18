@@ -19,17 +19,18 @@ import org.xlsx4j.sml.STCellType;
  * @author Thorben Lindhauer
  *
  */
-public class DmnValueStringConverter implements CellContentHandler {
-
-  public static final DmnValueStringConverter INSTANCE = new DmnValueStringConverter();
+public class FeelSimpleUnaryTestConverter implements CellContentHandler {
 
   public boolean canConvert(Cell cell, XlsxWorksheetContext context) {
-    return STCellType.S.equals(cell.getT());
+    if (!STCellType.S.equals(cell.getT())) {
+      return false;
+    }
+
+    String rawContent = context.resolveCellValue(cell);
+    return rawContent.startsWith(">") || rawContent.startsWith("<");
   }
 
   public String convert(Cell cell, XlsxWorksheetContext context) {
-    String content = context.resolveCellValue(cell);
-    return "\"" + content + "\"";
+    return context.resolveCellValue(cell);
   }
-
 }

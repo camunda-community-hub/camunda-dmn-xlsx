@@ -12,13 +12,14 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.docx4j.openpackaging.parts.SpreadsheetML.SharedStrings;
 import org.xlsx4j.sml.CTRst;
 import org.xlsx4j.sml.CTSst;
 import org.xlsx4j.sml.Cell;
 import org.xlsx4j.sml.Row;
+import org.xlsx4j.sml.STCellType;
 import org.xlsx4j.sml.Worksheet;
 
 /**
@@ -27,33 +28,34 @@ import org.xlsx4j.sml.Worksheet;
  */
 public class XlsxWorksheetContext {
 
+  protected List<CellContentHandler> cellContentHandlers;
   protected CTSst sharedStrings;
   protected Worksheet worksheet;
 
   public XlsxWorksheetContext(CTSst sharedStrings, Worksheet worksheet) {
     this.sharedStrings = sharedStrings;
     this.worksheet = worksheet;
+    this.cellContentHandlers = new ArrayList<CellContentHandler>();
   }
 
   public List<Row> getRows() {
     return worksheet.getSheetData().getRow();
   }
 
-  public String resolveCellValue(Cell cell) {
-     List<CTRst> siElements = sharedStrings.getSi();
-     // TODO: do something if v is null or cannot be parsed
-     int index = Integer.parseInt(cell.getV());
-     return siElements.get(index).getT().getValue();
+  public String resolveSharedString(int index) {
+    List<CTRst> siElements = sharedStrings.getSi();
+    return siElements.get(index).getT().getValue();
   }
 
-  public String resolveCellValue(Cell cell, CellContentConverter contentConverter) {
-    List<CTRst> siElements = sharedStrings.getSi();
-    // TODO: do something if v is null or cannot be parsed
-    int index = Integer.parseInt(cell.getV());
-    String rawValue = siElements.get(index).getT().getValue();
-
-    return contentConverter.convert(rawValue);
- }
-
+  public String resolveCellValue(Cell cell) {
+    STCellType cellType = cell.getT();
+    if (STCellType.S.equals(cellType)) {
+      int sharedStringIndex = Integer.parseInt(cell.getV());
+      return resolveSharedString(sharedStringIndex);
+    }
+    else {
+      return cell.getV();
+    }
+  }
 
 }
