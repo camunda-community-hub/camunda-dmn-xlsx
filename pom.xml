@@ -18,6 +18,7 @@
 
     <modules>
       <module>xlsx-dmn-converter</module>
+      <module>xlsx-dmn-cli</module>
       <module>xlsx-engine-plugin</module>
     </modules>
 
