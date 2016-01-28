@@ -12,23 +12,32 @@ Features
 * Conversion of Excel worksheets to DMN decision tables with inputs, outputs and rules
 * Pluggable strategy to determine columns that represent inputs and outputs
 * Comes as a Java library that can be embedded into custom applications
+* Comes as a command line application to execute standalone
+* Comes as a process engine plugin to integrate with process application deployments
 
 Usage
 -----
 
 ### Standalone Converter
 
+#### Command Line
+
+1. [Download the command line tool](https://app.camunda.com/nexus/content/groups/public/org/camunda/bpm/extension/dmn/dmn-xlsx-cli/0.1.0/dmn-xlsx-cli-0.1.0.jar). It is a runnable jar file, so you need to have Java installed.
+2. Take an Excel file that contains a decision to convert and place it next to the downloaded jar.
+3. Execute `java -jar dmn-xlsx-cli-0.1.0.jar --inputs A,B,C --outputs D,E,F path/to/input/file.xlsx path/to/output/file.dmn`. Note that this example assumes the columns A, B, and C are inputs and D, E, F are outputs. You can set these as you like.
+4. Obtain the dmn table and import it in Camunda modeler or in the [online DMN table editor](http://demo.bpmn.io/dmn).
+
 #### Java
 
 ##### Artifacts
 
-Currently, there are no published Maven artifacts available. In order to use the projects, checkout the sources and perform `mvn clean install`. Then, declare the following Maven dependency in a project that uses the converter:
+To use the Java library, add the following Maven dependency to your project:
 
 ```xml
 <dependency>
   <groupId>org.camunda.bpm.dmn.xlsx</groupId>
   <artifactId>dmn-xlsx-converter</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1.0</version>
 </dependency>
 ```
 
@@ -56,7 +65,15 @@ The class `org.camunda.bpm.dmn.xlsx.XlsxConverter` has bean properties that allo
 
 #### Artifacts
 
-Currently, there are no published Maven artifacts available. In order to use the process engine plugin, checkout the sources and execute `mvn clean install`.
+The process engine artifact can be obtained via the following Maven coordinates:
+
+```xml
+<dependency>
+  <groupId>org.camunda.bpm.dmn.xlsx</groupId>
+  <artifactId>dmn-xlsx-process-engine-plugin</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
 
 #### Configuration
 
