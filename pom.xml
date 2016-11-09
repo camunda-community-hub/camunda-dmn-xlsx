@@ -23,7 +23,7 @@
     </modules>
 
     <properties>
-      <camunda.version>7.4.0</camunda.version>
+      <camunda.version>7.6.0-alpha5</camunda.version>
     </properties>
 
     <dependencyManagement>

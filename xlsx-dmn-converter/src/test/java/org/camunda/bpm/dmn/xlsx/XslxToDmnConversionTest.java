@@ -25,6 +25,8 @@ import org.junit.Test;
  */
 public class XslxToDmnConversionTest {
 
+  public static final String DMN_11_NAMESPACE = "http://www.omg.org/spec/DMN/20151101/dmn.xsd";
+
   // TODO: assert input entry text content
 
   @Test
@@ -67,5 +69,14 @@ public class XslxToDmnConversionTest {
     Assert.assertEquals(3, table.getInputs().size());
     Assert.assertEquals(1, table.getOutputs().size());
     Assert.assertEquals(4, table.getRules().size());
+  }
+
+  @Test
+  public void testDmnNamespace() {
+    XlsxConverter converter = new XlsxConverter();
+    InputStream inputStream = TestHelper.getClassPathResource("test1.xlsx");
+    DmnModelInstance dmnModelInstance = converter.convert(inputStream);
+
+    Assert.assertEquals(DMN_11_NAMESPACE, dmnModelInstance.getDefinitions().getDomElement().getNamespaceURI());
   }
 }
