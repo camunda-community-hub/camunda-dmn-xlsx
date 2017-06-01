@@ -52,9 +52,13 @@ public class XlsxConverter {
     WorksheetPart worksheetPart;
     try {
       Properties properties = spreadSheetPackage.getDocPropsExtendedPart().getContents();
-      String worksheetName = (String) properties.getTitlesOfParts().getVector().getVariantOrI1OrI2().get(0).getValue();
+      String worksheetName;
+      if(properties.getTitlesOfParts() != null) {
+        worksheetName = (String) properties.getTitlesOfParts().getVector().getVariantOrI1OrI2().get(0).getValue();
+      } else {
+        worksheetName = "default";
+      }
       worksheetPart = workbookPart.getWorksheet(0);
-
       SharedStrings sharedStrings = workbookPart.getSharedStrings();
       worksheetContext = new XlsxWorksheetContext(sharedStrings.getContents(), worksheetPart.getContents(), worksheetName);
     } catch (Exception e) {

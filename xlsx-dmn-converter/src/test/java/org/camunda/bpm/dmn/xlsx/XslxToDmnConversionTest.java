@@ -79,4 +79,19 @@ public class XslxToDmnConversionTest {
 
     Assert.assertEquals(DMN_11_NAMESPACE, dmnModelInstance.getDefinitions().getDomElement().getNamespaceURI());
   }
+
+  @Test
+  public void testConversionOfNullTitleOfParts() {
+    XlsxConverter converter = new XlsxConverter();
+    InputStream inputStream = TestHelper.getClassPathResource("test4.xlsx");
+    DmnModelInstance dmnModelInstance = converter.convert(inputStream);
+    Assert.assertNotNull(dmnModelInstance);
+
+    DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
+
+    Assert.assertNotNull(table);
+    Assert.assertEquals(2, table.getInputs().size());
+    Assert.assertEquals(1, table.getOutputs().size());
+    Assert.assertEquals(1, table.getRules().size());
+  }
 }
