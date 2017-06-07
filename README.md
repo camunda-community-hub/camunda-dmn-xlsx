@@ -35,9 +35,9 @@ To use the Java library, add the following Maven dependency to your project:
 
 ```xml
 <dependency>
-  <groupId>org.camunda.bpm.dmn.xlsx</groupId>
+  <groupId>org.camunda.bpm.extension.dmn.xlsx</groupId>
   <artifactId>dmn-xlsx-converter</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
 </dependency>
 ```
 
