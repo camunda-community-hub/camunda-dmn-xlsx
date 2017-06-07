@@ -69,9 +69,9 @@ The process engine artifact can be obtained via the following Maven coordinates:
 
 ```xml
 <dependency>
-  <groupId>org.camunda.bpm.dmn.xlsx</groupId>
+  <groupId>org.camunda.bpm.extension.dmn.xlsx</groupId>
   <artifactId>dmn-xlsx-process-engine-plugin</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
 </dependency>
 ```
 
