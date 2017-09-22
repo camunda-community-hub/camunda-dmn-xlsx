@@ -48,7 +48,8 @@ public class XlsxWorksheetConverter {
     this.dmnConversionContext = new DmnConversionContext(worksheetContext);
     this.ioDetectionStrategy = ioDetectionStrategy;
 
-    // order is important
+    // order is important; add most specific converters first
+    this.dmnConversionContext.addCellContentHandler(new DmnValueRangeConverter());
     this.dmnConversionContext.addCellContentHandler(new FeelSimpleUnaryTestConverter());
     this.dmnConversionContext.addCellContentHandler(new DmnValueStringConverter());
     this.dmnConversionContext.addCellContentHandler(new DmnValueNumberConverter());

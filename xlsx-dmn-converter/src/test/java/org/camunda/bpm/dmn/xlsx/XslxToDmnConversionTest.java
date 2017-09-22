@@ -14,8 +14,12 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.io.InputStream;
 
+import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.bpm.model.dmn.instance.DecisionTable;
+import org.camunda.bpm.model.dmn.instance.Input;
+import org.camunda.bpm.model.dmn.instance.InputEntry;
+import org.camunda.bpm.model.dmn.instance.Rule;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -93,5 +97,25 @@ public class XslxToDmnConversionTest {
     Assert.assertEquals(2, table.getInputs().size());
     Assert.assertEquals(1, table.getOutputs().size());
     Assert.assertEquals(1, table.getRules().size());
+  }
+
+  @Test
+  public void testConversionWithRanges() {
+    XlsxConverter converter = new XlsxConverter();
+    InputStream inputStream = TestHelper.getClassPathResource("test5.xlsx");
+    DmnModelInstance dmnModelInstance = converter.convert(inputStream);
+    Assert.assertNotNull(dmnModelInstance);
+
+    DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
+    Assert.assertNotNull(table);
+    Assert.assertEquals(1, table.getInputs().size());
+    Assert.assertEquals(1, table.getOutputs().size());
+    Assert.assertEquals(4, table.getRules().size());
+
+    Rule firstRule = table.getRules().iterator().next();
+
+    InputEntry inputEntry = firstRule.getInputEntries().iterator().next();
+    String firstInput = inputEntry.getTextContent();
+    Assert.assertEquals("[1..2]", firstInput);
   }
 }
