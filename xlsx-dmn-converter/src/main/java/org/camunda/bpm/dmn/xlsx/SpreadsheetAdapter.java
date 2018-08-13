@@ -13,12 +13,23 @@
 package org.camunda.bpm.dmn.xlsx;
 
 import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
+import org.camunda.bpm.model.dmn.HitPolicy;
 
 /**
- * @author Thorben Lindhauer
- *
+ * Implement this interface to tailor the conversion process to a specific format
+ * of your excel sheets.
  */
-public interface InputOutputDetectionStrategy {
+public interface SpreadsheetAdapter {
 
-  InputOutputColumns determineHeaderCells(IndexedRow headerRow, XlsxWorksheetContext context);
+  InputOutputColumns determineInputOutputs(IndexedRow headerRow, XlsxWorksheetContext context);
+
+  /**
+   * @return the number of leading rows before the decision rules begin
+   */
+  int numberHeaderRows();
+
+  /**
+   * @return null to use the DMN default
+   */
+  HitPolicy determineHitPolicy(XlsxWorksheetContext context);
 }

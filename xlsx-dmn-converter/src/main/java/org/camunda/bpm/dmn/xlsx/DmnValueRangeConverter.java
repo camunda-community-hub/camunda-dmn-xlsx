@@ -23,7 +23,7 @@ import org.xlsx4j.sml.STCellType;
  */
 public class DmnValueRangeConverter implements CellContentHandler {
 
-  public static final Pattern RANGE_REGEX = Pattern.compile("[\\[\\]][0-9\\.]+\\.\\.[0-9\\.]+[\\[\\]]");
+  public static final Pattern RANGE_REGEX = Pattern.compile("[\\[\\]](?:[0-9.]+|(?:date and time\\(.+\\)))\\.\\.(?:[0-9.]+|(?:date and time\\(.+\\)))[\\[\\]]");
 
   @Override
   public boolean canConvert(Cell cell, XlsxWorksheetContext context) {

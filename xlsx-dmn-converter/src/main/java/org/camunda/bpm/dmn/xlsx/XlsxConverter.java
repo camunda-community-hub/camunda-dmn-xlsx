@@ -28,7 +28,7 @@ import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
  */
 public class XlsxConverter {
 
-  protected InputOutputDetectionStrategy ioDetectionStrategy = new SimpleInputOutputDetectionStrategy();
+  protected SpreadsheetAdapter ioDetectionStrategy = new SimpleInputOutputDetectionStrategy();
 
   public DmnModelInstance convert(InputStream inputStream) {
     SpreadsheetMLPackage spreadSheetPackage = null;
@@ -63,11 +63,11 @@ public class XlsxConverter {
     return new XlsxWorksheetConverter(worksheetContext, ioDetectionStrategy).convert();
   }
 
-  public InputOutputDetectionStrategy getIoDetectionStrategy() {
+  public SpreadsheetAdapter getIoDetectionStrategy() {
     return ioDetectionStrategy;
   }
 
-  public void setIoDetectionStrategy(InputOutputDetectionStrategy ioDetectionStrategy) {
+  public void setIoDetectionStrategy(SpreadsheetAdapter ioDetectionStrategy) {
     this.ioDetectionStrategy = ioDetectionStrategy;
   }
 

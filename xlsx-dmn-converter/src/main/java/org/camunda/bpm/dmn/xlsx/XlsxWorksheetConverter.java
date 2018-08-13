@@ -14,36 +14,26 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.util.List;
 
+import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
 import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
 import org.camunda.bpm.dmn.xlsx.elements.IndexedDmnColumns;
 import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
 import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
+import org.camunda.bpm.model.dmn.HitPolicy;
 import org.camunda.bpm.model.dmn.impl.DmnModelConstants;
-import org.camunda.bpm.model.dmn.instance.Decision;
-import org.camunda.bpm.model.dmn.instance.DecisionTable;
-import org.camunda.bpm.model.dmn.instance.Definitions;
-import org.camunda.bpm.model.dmn.instance.DmnElement;
-import org.camunda.bpm.model.dmn.instance.Input;
-import org.camunda.bpm.model.dmn.instance.InputEntry;
-import org.camunda.bpm.model.dmn.instance.InputExpression;
-import org.camunda.bpm.model.dmn.instance.NamedElement;
-import org.camunda.bpm.model.dmn.instance.Output;
-import org.camunda.bpm.model.dmn.instance.OutputEntry;
-import org.camunda.bpm.model.dmn.instance.Rule;
-import org.camunda.bpm.model.dmn.instance.Text;
+import org.camunda.bpm.model.dmn.instance.*;
 
 /**
  * @author Thorben Lindhauer
- *
  */
 public class XlsxWorksheetConverter {
 
   protected XlsxWorksheetContext worksheetContext;
   protected DmnConversionContext dmnConversionContext;
-  protected InputOutputDetectionStrategy ioDetectionStrategy;
+  protected SpreadsheetAdapter ioDetectionStrategy;
 
-  public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext, InputOutputDetectionStrategy ioDetectionStrategy) {
+  public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext, SpreadsheetAdapter ioDetectionStrategy) {
     this.worksheetContext = worksheetContext;
     this.dmnConversionContext = new DmnConversionContext(worksheetContext);
     this.ioDetectionStrategy = ioDetectionStrategy;
@@ -67,38 +57,72 @@ public class XlsxWorksheetConverter {
 
     List<IndexedRow> rows = worksheetContext.getRows();
 
+    setHitPolicy(decisionTable);
     convertInputsOutputs(dmnModel, decisionTable, rows.get(0));
-    convertRules(dmnModel, decisionTable, rows.subList(1, rows.size()));
+    convertRules(dmnModel, decisionTable, rows.subList(ioDetectionStrategy.numberHeaderRows(), rows.size()));
 
     return dmnModel;
   }
 
+  protected void setHitPolicy(DecisionTable decisionTable) {
+    HitPolicy hitPolicy = ioDetectionStrategy.determineHitPolicy(worksheetContext);
+    if (hitPolicy != null) {
+      decisionTable.setHitPolicy(hitPolicy);
+    }
+  }
+
   protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable, IndexedRow header) {
 
-    InputOutputColumns inputOutputColumns = ioDetectionStrategy.determineHeaderCells(header, worksheetContext);
+    InputOutputColumns inputOutputColumns = ioDetectionStrategy.determineInputOutputs(header, worksheetContext);
 
     // inputs
-    for (IndexedCell inputCell : inputOutputColumns.getInputHeaderCells()) {
-      Input input = generateElement(dmnModel, Input.class, worksheetContext.resolveCellValue(inputCell.getCell()));
+    for (HeaderValuesContainer hvc : inputOutputColumns.getInputHeaders()) {
+      Input input = generateElement(dmnModel, Input.class, hvc.getId());
       decisionTable.addChildElement(input);
 
+      // mandatory
       InputExpression inputExpression = generateElement(dmnModel, InputExpression.class);
-      Text text = generateText(dmnModel, worksheetContext.resolveCellValue(inputCell.getCell()));
+      Text text = generateText(dmnModel, hvc.getText());
       inputExpression.setText(text);
       input.setInputExpression(inputExpression);
 
-      dmnConversionContext.getIndexedDmnColumns().addInput(inputCell, input);
+      // optionals
+      if (hvc.getLabel() != null) {
+	    input.setLabel(hvc.getLabel());
+      }
+	  if (hvc.getTypeRef() != null) {
+	    inputExpression.setTypeRef(hvc.getTypeRef());
+      }
+	  if (hvc.getExpressionLanguage() != null) {
+	    inputExpression.setExpressionLanguage(hvc.getExpressionLanguage());
+      }
+
+      dmnConversionContext.getIndexedDmnColumns().addInput(getIndexedCellForColumn(header, hvc.getColumn()), input);
     }
 
     // outputs
-    for (IndexedCell outputCell : inputOutputColumns.getOutputHeaderCells()) {
-      Output output = generateElement(dmnModel, Output.class, worksheetContext.resolveCellValue(outputCell.getCell()));
-      output.setName(worksheetContext.resolveCellValue(outputCell.getCell()));
+    for (HeaderValuesContainer hvc : inputOutputColumns.getOutputHeaders()) {
+      Output output = generateElement(dmnModel, Output.class, hvc.getId());
       decisionTable.addChildElement(output);
 
-      dmnConversionContext.getIndexedDmnColumns().addOutput(outputCell, output);
+      // mandatory
+      output.setName(hvc.getText());
+
+      // optionals
+      if (hvc.getLabel() != null) {
+	      output.setLabel(hvc.getLabel());
+      }
+      if (hvc.getTypeRef() != null) {
+	      output.setTypeRef(hvc.getTypeRef());
+      }
+
+      dmnConversionContext.getIndexedDmnColumns().addOutput(getIndexedCellForColumn(header, hvc.getColumn()), output);
     }
 
+  }
+
+  protected IndexedCell getIndexedCellForColumn(IndexedRow header, String column) {
+      return header.getCell(column);
   }
 
   protected void convertRules(DmnModelInstance dmnModel, DecisionTable decisionTable, List<IndexedRow> rulesRows) {
@@ -136,6 +160,11 @@ public class XlsxWorksheetConverter {
       outputEntry.setText(text);
       rule.addChildElement(outputEntry);
     }
+
+    IndexedCell annotationCell = ruleRow.getCells().get(ruleRow.getCells().size() - 1);
+    Description description =  generateDescription(dmnModel, worksheetContext.resolveCellValue(annotationCell.getCell()));
+    rule.setDescription(description);
+
   }
 
   protected String getDefaultCellContent() {
@@ -176,5 +205,11 @@ public class XlsxWorksheetConverter {
     Text text = dmnModel.newInstance(Text.class);
     text.setTextContent(content);
     return text;
+  }
+
+  protected  Description generateDescription(DmnModelInstance dmnModel, String content) {
+      Description description =  dmnModel.newInstance(Description.class);
+      description.setTextContent(content);
+      return description;
   }
 }

@@ -14,14 +14,16 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.util.Set;
 
+import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
 import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
 import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
+import org.camunda.bpm.model.dmn.HitPolicy;
 
 /**
  * @author Thorben Lindhauer
  *
  */
-public class StaticInputOutputDetectionStrategy implements InputOutputDetectionStrategy {
+public class StaticInputOutputDetectionStrategy implements SpreadsheetAdapter {
 
   protected Set<String> inputColumns;
   protected Set<String> outputColumns;
@@ -31,18 +33,39 @@ public class StaticInputOutputDetectionStrategy implements InputOutputDetectionS
     this.outputColumns = outputColumns;
   }
 
-  public InputOutputColumns determineHeaderCells(IndexedRow headerRow, XlsxWorksheetContext context) {
+  public InputOutputColumns determineInputOutputs(IndexedRow headerRow, XlsxWorksheetContext context) {
     InputOutputColumns columns = new InputOutputColumns();
 
+    HeaderValuesContainer hvc;
     for (IndexedCell cell : headerRow.getCells()) {
       if (inputColumns.contains(cell.getColumn())) {
-        columns.addInputHeaderCell(cell);
+        hvc = new HeaderValuesContainer();
+        fillHvc(cell, context, hvc);
+        hvc.setId("Input" + cell.getColumn());
+        columns.addInputHeader(hvc);
       }
       else if (outputColumns.contains(cell.getColumn())) {
-        columns.addOutputHeaderCell(cell);
+        hvc = new HeaderValuesContainer();
+        fillHvc(cell, context, hvc);
+        hvc.setId("Output" + cell.getColumn());
+        columns.addOutputHeader(hvc);
       }
     }
 
     return columns;
+  }
+
+  @Override
+  public HitPolicy determineHitPolicy(XlsxWorksheetContext context) {
+    return null;
+  }
+
+  private void fillHvc(IndexedCell cell, XlsxWorksheetContext context, HeaderValuesContainer hvc) {
+    hvc.setText(context.resolveCellValue(cell.getCell()));
+    hvc.setColumn(cell.getColumn());
+  }
+
+  public int numberHeaderRows() {
+    return 1;
   }
 }

@@ -13,9 +13,10 @@
 package org.camunda.bpm.dmn.xlsx;
 
 import java.io.InputStream;
+import java.util.Iterator;
 
-import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
+import org.camunda.bpm.model.dmn.HitPolicy;
 import org.camunda.bpm.model.dmn.instance.DecisionTable;
 import org.camunda.bpm.model.dmn.instance.Input;
 import org.camunda.bpm.model.dmn.instance.InputEntry;
@@ -30,6 +31,13 @@ import org.junit.Test;
 public class XslxToDmnConversionTest {
 
   public static final String DMN_11_NAMESPACE = "http://www.omg.org/spec/DMN/20151101/dmn.xsd";
+
+  private static final String JAVASCRIPT_SNIPPET =
+          "if (exp1 % 2 == 0)\n" +
+                  "    {erg = 2;}\n" +
+                  "else\n" +
+                  "    {erg = 1;}\n" +
+                  "erg;";
 
   // TODO: assert input entry text content
 
@@ -117,5 +125,46 @@ public class XslxToDmnConversionTest {
     InputEntry inputEntry = firstRule.getInputEntries().iterator().next();
     String firstInput = inputEntry.getTextContent();
     Assert.assertEquals("[1..2]", firstInput);
+  }
+
+  @Test
+  public void testConversionWithComplexHeaders() {
+    XlsxConverter converter = new XlsxConverter();
+    converter.setIoDetectionStrategy(new AdvancedSpreadsheetAdapter());
+    InputStream inputStream = TestHelper.getClassPathResource("test6.xlsx");
+    DmnModelInstance dmnModelInstance = converter.convert(inputStream);
+    Assert.assertNotNull(dmnModelInstance);
+
+    DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
+    Assert.assertNotNull(table);
+    Assert.assertEquals(2, table.getInputs().size());
+    Assert.assertEquals(2, table.getOutputs().size());
+    Assert.assertEquals(2, table.getRules().size());
+    Assert.assertEquals(HitPolicy.FIRST, table.getHitPolicy());
+
+    Iterator<Input> inputIterator = table.getInputs().iterator();
+    Input input = inputIterator.next();
+    Assert.assertEquals("input1", input.getId());
+    Assert.assertEquals("InputLabel1", input.getLabel());
+    Assert.assertEquals("string", input.getInputExpression().getTypeRef());
+    Assert.assertEquals("Exp1", input.getTextContent());
+
+    input = inputIterator.next();
+    Assert.assertEquals("input2", input.getId());
+    Assert.assertEquals("InputLabel2", input.getLabel());
+    Assert.assertEquals("integer", input.getInputExpression().getTypeRef());
+    Assert.assertEquals("javascript", input.getInputExpression().getExpressionLanguage());
+    Assert.assertEquals(JAVASCRIPT_SNIPPET, input.getInputExpression().getTextContent());
+
+    Iterator<Rule> ruleIterator = table.getRules().iterator();
+    Rule rule = ruleIterator.next();
+    Assert.assertEquals("Comment1", rule.getDescription().getTextContent());
+
+    InputEntry inputEntry = rule.getInputEntries().iterator().next();
+    String firstInput = inputEntry.getTextContent();
+    Assert.assertEquals("\"Foo\"", firstInput);
+
+    rule = ruleIterator.next();
+    Assert.assertEquals("Another Comment", rule.getDescription().getTextContent());
   }
 }

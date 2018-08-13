@@ -15,7 +15,7 @@ package org.camunda.bpm.dmn.xlsx;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
+import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
 
 /**
  * @author Thorben Lindhauer
@@ -23,27 +23,27 @@ import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
  */
 public class InputOutputColumns {
 
-  protected List<IndexedCell> inputHeaderCells;
-  protected List<IndexedCell> outputHeaderCells;
+  protected List<HeaderValuesContainer> inputHeaders;
+  protected List<HeaderValuesContainer> outputHeaders;
 
   public InputOutputColumns() {
-    this.inputHeaderCells = new ArrayList<IndexedCell>();
-    this.outputHeaderCells = new ArrayList<IndexedCell>();
+    this.inputHeaders = new ArrayList<HeaderValuesContainer>();
+    this.outputHeaders = new ArrayList<HeaderValuesContainer>();
   }
 
-  public void addOutputHeaderCell(IndexedCell cell) {
-    this.outputHeaderCells.add(cell);
+  public void addOutputHeader(HeaderValuesContainer hvc) {
+    this.outputHeaders.add(hvc);
   }
 
-  public void addInputHeaderCell(IndexedCell cell) {
-    this.inputHeaderCells.add(cell);
+  public void addInputHeader(HeaderValuesContainer hvc) {
+    this.inputHeaders.add(hvc);
   }
 
-  public List<IndexedCell> getOutputHeaderCells() {
-    return outputHeaderCells;
+  public List<HeaderValuesContainer> getOutputHeaders() {
+    return outputHeaders;
   }
 
-  public List<IndexedCell> getInputHeaderCells() {
-    return inputHeaderCells;
+  public List<HeaderValuesContainer> getInputHeaders() {
+    return inputHeaders;
   }
 }
