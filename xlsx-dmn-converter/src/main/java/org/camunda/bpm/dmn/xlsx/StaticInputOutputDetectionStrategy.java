@@ -14,6 +14,7 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.util.Set;
 
+import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
 import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
 import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
 
@@ -34,15 +35,36 @@ public class StaticInputOutputDetectionStrategy implements InputOutputDetectionS
   public InputOutputColumns determineHeaderCells(IndexedRow headerRow, XlsxWorksheetContext context) {
     InputOutputColumns columns = new InputOutputColumns();
 
+    HeaderValuesContainer hvc;
     for (IndexedCell cell : headerRow.getCells()) {
       if (inputColumns.contains(cell.getColumn())) {
-        columns.addInputHeaderCell(cell);
+        hvc = new HeaderValuesContainer();
+        fillHvc(cell, context, hvc);
+        hvc.setId("Input" + cell.getColumn());
+        columns.addInputHeaderCell(hvc);
       }
       else if (outputColumns.contains(cell.getColumn())) {
-        columns.addOutputHeaderCell(cell);
+        hvc = new HeaderValuesContainer();
+        fillHvc(cell, context, hvc);
+        hvc.setId("Output" + cell.getColumn());
+        columns.addOutputHeaderCell(hvc);
       }
     }
 
     return columns;
+  }
+
+  @Override
+  public String determineHitPolicy(XlsxWorksheetContext context) {
+    return null;
+  }
+
+  private void fillHvc(IndexedCell cell, XlsxWorksheetContext context, HeaderValuesContainer hvc) {
+    hvc.setText(context.resolveCellValue(cell.getCell()));
+    hvc.setColumn(cell.getColumn());
+  }
+
+  public int numberHeaderRows() {
+    return 1;
   }
 }

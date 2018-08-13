@@ -47,6 +47,7 @@ public class DmnValueRangeMatcherTest {
             { "100..900", false },
             { "[100900]", false },
             { "[100.900]", false },
+            { "[date and time(\"2018-05-17T00:00:00\")..date and time(\"2018-11-17T24:00:00\")]", true}
          });
      }
 

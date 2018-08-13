@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.camunda.bpm.dmn.xlsx.AdvancedInputOutputDetectionStrategy;
 import org.camunda.bpm.dmn.xlsx.InputOutputDetectionStrategy;
 import org.camunda.bpm.dmn.xlsx.StaticInputOutputDetectionStrategy;
 import org.camunda.bpm.dmn.xlsx.XlsxConverter;
@@ -31,12 +32,19 @@ import org.camunda.bpm.model.dmn.DmnModelInstance;
 public class CommandLineConverter {
 
   public static void main(String[] args) {
+
     if (args.length == 0) {
+      final String LINE_SEPARATOR = System.getProperty("line.separator");
       StringBuilder sb = new StringBuilder();
-      sb.append("Usage: java -jar ...jar [--inputs A,B,C,..] [--outputs D,E,F,...] path/to/file.xlsx path/to/outfile.dmn");
+      sb.append("Usage: java -jar ...jar [--inputs A,B,C,..] [--outputs D,E,F,...] [--advanced] path/to/file.xlsx path/to/outfile.dmn");
+      sb.append(LINE_SEPARATOR);
+      sb.append("The use of --advanced negates the --input and --output parameters.");
       System.out.println(sb.toString());
       return;
     }
+
+    InputOutputDetectionStrategy ioStrategy;
+    XlsxConverter converter = new XlsxConverter();
 
     String inputFile = args[args.length - 2];
     String outputFile = args[args.length - 1];
@@ -54,11 +62,18 @@ public class CommandLineConverter {
         outputs = new HashSet<String>();
         outputs.addAll(Arrays.asList(args[i + 1].split(",")));
       }
+      if ("--advanced".equals(args[i])) {
+        inputs = null;
+        outputs = null;
+        ioStrategy = new AdvancedInputOutputDetectionStrategy();
+        converter.setIoDetectionStrategy(ioStrategy);
+      }
     }
 
-    XlsxConverter converter = new XlsxConverter();
+
+
     if (inputs != null && outputs != null) {
-      InputOutputDetectionStrategy ioStrategy = new StaticInputOutputDetectionStrategy(inputs, outputs);
+      ioStrategy = new StaticInputOutputDetectionStrategy(inputs, outputs);
       converter.setIoDetectionStrategy(ioStrategy);
     }
 
@@ -70,6 +85,7 @@ public class CommandLineConverter {
         fileInputStream = new FileInputStream(inputFile);
         DmnModelInstance dmnModelInstance = converter.convert(fileInputStream);
         fileOutputStream = new FileOutputStream(outputFile);
+
         Dmn.writeModelToStream(fileOutputStream, dmnModelInstance);
       }
       finally {

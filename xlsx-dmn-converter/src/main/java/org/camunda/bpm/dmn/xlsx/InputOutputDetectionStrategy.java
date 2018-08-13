@@ -21,4 +21,8 @@ import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
 public interface InputOutputDetectionStrategy {
 
   InputOutputColumns determineHeaderCells(IndexedRow headerRow, XlsxWorksheetContext context);
+
+  int numberHeaderRows();
+
+  String determineHitPolicy(XlsxWorksheetContext context);
 }
