@@ -14,18 +14,13 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.io.InputStream;
 
-import org.apache.fop.fo.properties.Property;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
-import org.docx4j.docProps.core.CoreProperties;
 import org.docx4j.docProps.extended.Properties;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
-import org.docx4j.openpackaging.packages.OpcPackage;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.SharedStrings;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
-import org.xlsx4j.exceptions.Xlsx4jException;
-import org.xlsx4j.sml.Worksheet;
 
 /**
  * @author Thorben Lindhauer
@@ -38,7 +33,7 @@ public class XlsxConverter {
   public DmnModelInstance convert(InputStream inputStream) {
     SpreadsheetMLPackage spreadSheetPackage = null;
     try {
-      spreadSheetPackage = (SpreadsheetMLPackage) SpreadsheetMLPackage.load(inputStream);
+      spreadSheetPackage = SpreadsheetMLPackage.load(inputStream);
     } catch (Docx4JException e) {
       // TODO: checked exception
       throw new RuntimeException("cannot load document", e);
