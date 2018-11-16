@@ -12,10 +12,11 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Arrays;
 import java.util.regex.Matcher;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -62,6 +63,6 @@ public class DmnValueRangeMatcherTest {
   {
     Matcher matcher = DmnValueRangeConverter.RANGE_REGEX.matcher(input);
 
-    Assert.assertEquals(shouldMatch, matcher.matches());
+    assertThat(matcher.matches()).isEqualTo(shouldMatch);
   }
 }

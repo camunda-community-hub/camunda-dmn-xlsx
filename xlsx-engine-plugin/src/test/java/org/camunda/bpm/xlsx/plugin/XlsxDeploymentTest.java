@@ -12,6 +12,8 @@
  */
 package org.camunda.bpm.xlsx.plugin;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Collection;
 
 import org.camunda.bpm.dmn.engine.DmnDecisionTableResult;
@@ -22,7 +24,6 @@ import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.bpm.model.dmn.instance.DecisionTable;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -55,7 +56,7 @@ public class XlsxDeploymentTest {
 
     // then
     DecisionDefinition decisionDefinition = rule.getRepositoryService().createDecisionDefinitionQuery().singleResult();
-    Assert.assertNotNull(decisionDefinition);
+    assertThat(decisionDefinition).isNotNull();
   }
 
   @Test
@@ -70,15 +71,15 @@ public class XlsxDeploymentTest {
 
     // then
     DecisionDefinition decisionDefinition = rule.getRepositoryService().createDecisionDefinitionQuery().singleResult();
-    Assert.assertNotNull(decisionDefinition);
+    assertThat(decisionDefinition).isNotNull();
 
     DmnModelInstance dmnModel = rule.getRepositoryService().getDmnModelInstance(decisionDefinition.getId());
     Collection<DecisionTable> decisionTables = dmnModel.getModelElementsByType(DecisionTable.class);
-    Assert.assertEquals(1, decisionTables.size());
+    assertThat(decisionTables).hasSize(1);
 
     DecisionTable decisionTable = decisionTables.iterator().next();
-    Assert.assertEquals(1, decisionTable.getInputs().size());
-    Assert.assertEquals(1, decisionTable.getOutputs().size());
+    assertThat(decisionTable.getInputs()).hasSize(1);
+    assertThat(decisionTable.getOutputs()).hasSize(1);
 
   }
 
@@ -93,8 +94,8 @@ public class XlsxDeploymentTest {
         Variables.createVariables().putValue("input1", "foo").putValue("input2", 15));
 
     // then
-    Assert.assertEquals(1, result.getResultList().size());
-    Assert.assertEquals(1, result.getSingleResult().getEntryMap().size());
-    Assert.assertEquals("foofoo", result.getSingleResult().getSingleEntry());
+    assertThat(result.getResultList()).hasSize(1);
+    assertThat(result.getSingleResult().getEntryMap()).hasSize(1);
+    assertThat(result.getSingleResult().getSingleEntry()).isEqualTo("foofoo");
   }
 }

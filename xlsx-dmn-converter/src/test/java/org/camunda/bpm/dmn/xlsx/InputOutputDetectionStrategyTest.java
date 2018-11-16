@@ -12,12 +12,13 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.InputStream;
 import java.util.Collections;
 
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.bpm.model.dmn.instance.DecisionTable;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -32,13 +33,13 @@ public class InputOutputDetectionStrategyTest {
     converter.setIoDetectionStrategy(new StaticInputOutputDetectionStrategy(Collections.singleton("B"), Collections.singleton("D")));
     InputStream inputStream = TestHelper.getClassPathResource("test2.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
-    Assert.assertNotNull(dmnModelInstance);
+    assertThat(dmnModelInstance).isNotNull();
 
     DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
-    Assert.assertNotNull(table);
-    Assert.assertEquals(1, table.getInputs().size());
-    Assert.assertEquals(1, table.getOutputs().size());
-    Assert.assertEquals(4, table.getRules().size());
+    assertThat(table).isNotNull();
+    assertThat(table.getInputs()).hasSize(1);
+    assertThat(table.getOutputs()).hasSize(1);
+    assertThat(table.getRules()).hasSize(4);
   }
 
 }

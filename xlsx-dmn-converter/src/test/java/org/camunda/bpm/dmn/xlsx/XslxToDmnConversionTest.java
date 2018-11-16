@@ -12,6 +12,8 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.InputStream;
 import java.util.Iterator;
 
@@ -21,7 +23,6 @@ import org.camunda.bpm.model.dmn.instance.DecisionTable;
 import org.camunda.bpm.model.dmn.instance.Input;
 import org.camunda.bpm.model.dmn.instance.InputEntry;
 import org.camunda.bpm.model.dmn.instance.Rule;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -46,13 +47,13 @@ public class XslxToDmnConversionTest {
     XlsxConverter converter = new XlsxConverter();
     InputStream inputStream = TestHelper.getClassPathResource("test1.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
-    Assert.assertNotNull(dmnModelInstance);
+    assertThat(dmnModelInstance).isNotNull();
 
     DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
-    Assert.assertNotNull(table);
-    Assert.assertEquals(2, table.getInputs().size());
-    Assert.assertEquals(1, table.getOutputs().size());
-    Assert.assertEquals(4, table.getRules().size());
+    assertThat(table).isNotNull();
+    assertThat(table.getInputs()).hasSize(2);
+    assertThat(table.getOutputs()).hasSize(1);
+    assertThat(table.getRules()).hasSize(4);
   }
 
   @Test
@@ -60,13 +61,13 @@ public class XslxToDmnConversionTest {
     XlsxConverter converter = new XlsxConverter();
     InputStream inputStream = TestHelper.getClassPathResource("test2.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
-    Assert.assertNotNull(dmnModelInstance);
+    assertThat(dmnModelInstance).isNotNull();
 
     DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
-    Assert.assertNotNull(table);
-    Assert.assertEquals(3, table.getInputs().size());
-    Assert.assertEquals(1, table.getOutputs().size());
-    Assert.assertEquals(4, table.getRules().size());
+    assertThat(table).isNotNull();
+    assertThat(table.getInputs()).hasSize(3);
+    assertThat(table.getOutputs()).hasSize(1);
+    assertThat(table.getRules()).hasSize(4);
   }
 
   @Test
@@ -74,13 +75,13 @@ public class XslxToDmnConversionTest {
     XlsxConverter converter = new XlsxConverter();
     InputStream inputStream = TestHelper.getClassPathResource("test3.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
-    Assert.assertNotNull(dmnModelInstance);
+    assertThat(dmnModelInstance).isNotNull();
 
     DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
-    Assert.assertNotNull(table);
-    Assert.assertEquals(3, table.getInputs().size());
-    Assert.assertEquals(1, table.getOutputs().size());
-    Assert.assertEquals(4, table.getRules().size());
+    assertThat(table).isNotNull();
+    assertThat(table.getInputs()).hasSize(3);
+    assertThat(table.getOutputs()).hasSize(1);
+    assertThat(table.getRules()).hasSize(4);
   }
 
   @Test
@@ -89,7 +90,7 @@ public class XslxToDmnConversionTest {
     InputStream inputStream = TestHelper.getClassPathResource("test1.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
 
-    Assert.assertEquals(DMN_11_NAMESPACE, dmnModelInstance.getDefinitions().getDomElement().getNamespaceURI());
+    assertThat(dmnModelInstance.getDefinitions().getDomElement().getNamespaceURI()).isEqualTo(DMN_11_NAMESPACE);
   }
 
   @Test
@@ -97,14 +98,14 @@ public class XslxToDmnConversionTest {
     XlsxConverter converter = new XlsxConverter();
     InputStream inputStream = TestHelper.getClassPathResource("test4.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
-    Assert.assertNotNull(dmnModelInstance);
+    assertThat(dmnModelInstance).isNotNull();
 
     DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
 
-    Assert.assertNotNull(table);
-    Assert.assertEquals(2, table.getInputs().size());
-    Assert.assertEquals(1, table.getOutputs().size());
-    Assert.assertEquals(1, table.getRules().size());
+    assertThat(table).isNotNull();
+    assertThat(table.getInputs()).hasSize(2);
+    assertThat(table.getOutputs()).hasSize(1);
+    assertThat(table.getRules()).hasSize(1);
   }
 
   @Test
@@ -112,19 +113,19 @@ public class XslxToDmnConversionTest {
     XlsxConverter converter = new XlsxConverter();
     InputStream inputStream = TestHelper.getClassPathResource("test5.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
-    Assert.assertNotNull(dmnModelInstance);
+    assertThat(dmnModelInstance).isNotNull();
 
     DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
-    Assert.assertNotNull(table);
-    Assert.assertEquals(1, table.getInputs().size());
-    Assert.assertEquals(1, table.getOutputs().size());
-    Assert.assertEquals(4, table.getRules().size());
+    assertThat(table).isNotNull();
+    assertThat(table.getInputs()).hasSize(1);
+    assertThat(table.getOutputs()).hasSize(1);
+    assertThat(table.getRules()).hasSize(4);
 
     Rule firstRule = table.getRules().iterator().next();
 
     InputEntry inputEntry = firstRule.getInputEntries().iterator().next();
     String firstInput = inputEntry.getTextContent();
-    Assert.assertEquals("[1..2]", firstInput);
+    assertThat(firstInput).isEqualTo("[1..2]");
   }
 
   @Test
@@ -133,38 +134,38 @@ public class XslxToDmnConversionTest {
     converter.setIoDetectionStrategy(new AdvancedSpreadsheetAdapter());
     InputStream inputStream = TestHelper.getClassPathResource("test6.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
-    Assert.assertNotNull(dmnModelInstance);
+    assertThat(dmnModelInstance).isNotNull();
 
     DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);
-    Assert.assertNotNull(table);
-    Assert.assertEquals(2, table.getInputs().size());
-    Assert.assertEquals(2, table.getOutputs().size());
-    Assert.assertEquals(2, table.getRules().size());
-    Assert.assertEquals(HitPolicy.FIRST, table.getHitPolicy());
+    assertThat(table).isNotNull();
+    assertThat(table.getInputs()).hasSize(2);
+    assertThat(table.getOutputs()).hasSize(2);
+    assertThat(table.getRules()).hasSize(2);
+    assertThat(table.getHitPolicy()).isEqualTo(HitPolicy.FIRST);
 
     Iterator<Input> inputIterator = table.getInputs().iterator();
     Input input = inputIterator.next();
-    Assert.assertEquals("input1", input.getId());
-    Assert.assertEquals("InputLabel1", input.getLabel());
-    Assert.assertEquals("string", input.getInputExpression().getTypeRef());
-    Assert.assertEquals("Exp1", input.getTextContent());
+
+    assertThat(input.getId()).isEqualTo("input1");
+    assertThat(input.getLabel()).isEqualTo("InputLabel1");
+    assertThat(input.getInputExpression().getTypeRef()).isEqualTo("string");
+    assertThat(input.getTextContent()).isEqualTo("Exp1");
 
     input = inputIterator.next();
-    Assert.assertEquals("input2", input.getId());
-    Assert.assertEquals("InputLabel2", input.getLabel());
-    Assert.assertEquals("integer", input.getInputExpression().getTypeRef());
-    Assert.assertEquals("javascript", input.getInputExpression().getExpressionLanguage());
-    Assert.assertEquals(JAVASCRIPT_SNIPPET, input.getInputExpression().getTextContent());
+    assertThat(input.getId()).isEqualTo("input2");
+    assertThat(input.getLabel()).isEqualTo("InputLabel2");
+    assertThat(input.getInputExpression().getTypeRef()).isEqualTo("integer");
+    assertThat(input.getInputExpression().getExpressionLanguage()).isEqualTo("javascript");
+    assertThat(input.getInputExpression().getTextContent()).isEqualTo(JAVASCRIPT_SNIPPET);
 
     Iterator<Rule> ruleIterator = table.getRules().iterator();
     Rule rule = ruleIterator.next();
-    Assert.assertEquals("Comment1", rule.getDescription().getTextContent());
+    assertThat(rule.getDescription().getTextContent()).isEqualTo("Comment1");
 
     InputEntry inputEntry = rule.getInputEntries().iterator().next();
-    String firstInput = inputEntry.getTextContent();
-    Assert.assertEquals("\"Foo\"", firstInput);
+    assertThat(inputEntry.getTextContent()).isEqualTo("\"Foo\"");
 
     rule = ruleIterator.next();
-    Assert.assertEquals("Another Comment", rule.getDescription().getTextContent());
+    assertThat(rule.getDescription().getTextContent()).isEqualTo("Another Comment");
   }
 }

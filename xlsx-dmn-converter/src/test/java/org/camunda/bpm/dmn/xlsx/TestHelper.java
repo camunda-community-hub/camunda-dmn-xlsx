@@ -12,13 +12,14 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.InputStream;
 import java.util.Collection;
 
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.bpm.model.dmn.instance.Decision;
 import org.camunda.bpm.model.dmn.instance.DecisionTable;
-import org.junit.Assert;
 
 /**
  * @author Thorben Lindhauer
@@ -31,15 +32,15 @@ public class TestHelper {
   }
 
   public static DecisionTable assertAndGetSingleDecisionTable(DmnModelInstance dmnModel) {
-    Assert.assertNotNull(dmnModel.getDefinitions());
+    assertThat(dmnModel.getDefinitions()).isNotNull();
     Collection<Decision> decisions = dmnModel.getDefinitions().getChildElementsByType(Decision.class);
-    Assert.assertEquals(1, decisions.size());
+    assertThat(decisions).hasSize(1);
 
     Decision decision = decisions.iterator().next();
-    Assert.assertNotNull(decision);
+    assertThat(decision).isNotNull();
 
     Collection<DecisionTable> decisionTables = decision.getChildElementsByType(DecisionTable.class);
-    Assert.assertEquals(1, decisionTables.size());
+    assertThat(decisionTables).hasSize(1);
 
     return decisionTables.iterator().next();
   }
