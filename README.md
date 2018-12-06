@@ -35,7 +35,7 @@ To use the Java library, add the following Maven dependency to your project:
 
 ```xml
 <dependency>
-  <groupId>org.camunda.bpm.extension.dmn.xlsx</groupId>
+  <groupId>org.camunda.bpm.extension.dmn</groupId>
   <artifactId>dmn-xlsx-converter</artifactId>
   <version>0.2.0</version>
 </dependency>
@@ -69,7 +69,7 @@ The process engine artifact can be obtained via the following Maven coordinates:
 
 ```xml
 <dependency>
-  <groupId>org.camunda.bpm.extension.dmn.xlsx</groupId>
+  <groupId>org.camunda.bpm.extension.dmn</groupId>
   <artifactId>dmn-xlsx-process-engine-plugin</artifactId>
   <version>0.2.0</version>
 </dependency>
@@ -77,7 +77,7 @@ The process engine artifact can be obtained via the following Maven coordinates:
 
 #### Configuration
 
-Make sure to make the resulting `org.camunda.bpm.dmn.xlsx:dmn-xlsx-process-engine-plugin` artifact available on the process engine's classpath. Then configure the class `org.camunda.bpm.xlsx.plugin.XlsxDmnProcessEnginePlugin` as a process engine plugin.
+Make sure to make the resulting `org.camunda.bpm.dmn:dmn-xlsx-process-engine-plugin` artifact available on the process engine's classpath. Then configure the class `org.camunda.bpm.xlsx.plugin.XlsxDmnProcessEnginePlugin` as a process engine plugin.
 
 #### Usage
 
