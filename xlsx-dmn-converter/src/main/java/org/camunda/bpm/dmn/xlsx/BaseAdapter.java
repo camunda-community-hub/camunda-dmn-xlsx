@@ -12,22 +12,20 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.camunda.bpm.dmn.xlsx.api.Spreadsheet;
-import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
 
-/**
- * @author Thorben Lindhauer
- *
- */
-public interface CellContentHandler {
+public abstract class BaseAdapter implements SpreadsheetAdapter {
 
-  public static final List<CellContentHandler> DEFAULT_HANDLERS = new ArrayList<>();
+  @Override
+  public String determineDecisionName(Spreadsheet context) {
+    return context.getName();
+  }
 
-  boolean canConvert(SpreadsheetCell cell, Spreadsheet spreadsheet);
-
-  String convert(SpreadsheetCell cell, Spreadsheet spreadsheet);
-
+  @Override
+  public List<CellContentHandler> getCellContentHandlers(Spreadsheet context) {
+    return CellContentHandler.DEFAULT_HANDLERS;
+  }
 }

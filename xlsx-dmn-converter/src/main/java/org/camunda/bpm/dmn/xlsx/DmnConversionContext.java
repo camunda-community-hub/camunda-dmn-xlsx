@@ -12,7 +12,6 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
@@ -24,13 +23,14 @@ import org.camunda.bpm.dmn.xlsx.elements.IndexedDmnColumns;
  */
 public class DmnConversionContext {
 
-  protected List<CellContentHandler> cellContentHandlers = new ArrayList<>();
-  protected XlsxWorksheetContext worksheetContext;
+  protected final List<CellContentHandler> cellContentHandlers;
+  protected final XlsxWorksheetContext worksheetContext;
 
   protected IndexedDmnColumns indexedDmnColumns = new IndexedDmnColumns();
 
-  public DmnConversionContext(XlsxWorksheetContext worksheetContext) {
+  public DmnConversionContext(XlsxWorksheetContext worksheetContext, List<CellContentHandler> cellContentHandlers) {
     this.worksheetContext = worksheetContext;
+    this.cellContentHandlers = cellContentHandlers;
   }
 
   public String resolveCellValue(SpreadsheetCell cell) {
@@ -41,10 +41,6 @@ public class DmnConversionContext {
     }
     throw new RuntimeException("cannot parse cell content, unsupported format");
 
-  }
-
-  public void addCellContentHandler(CellContentHandler cellContentHandler) {
-    this.cellContentHandlers.add(cellContentHandler);
   }
 
   public IndexedDmnColumns getIndexedDmnColumns() {

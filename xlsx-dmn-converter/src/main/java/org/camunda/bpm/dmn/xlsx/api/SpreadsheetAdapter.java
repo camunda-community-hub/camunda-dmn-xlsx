@@ -12,8 +12,10 @@
  */
 package org.camunda.bpm.dmn.xlsx.api;
 
+import java.util.List;
+
+import org.camunda.bpm.dmn.xlsx.CellContentHandler;
 import org.camunda.bpm.dmn.xlsx.InputOutputColumns;
-import org.camunda.bpm.dmn.xlsx.XlsxWorksheetContext;
 import org.camunda.bpm.model.dmn.HitPolicy;
 
 /**
@@ -22,15 +24,23 @@ import org.camunda.bpm.model.dmn.HitPolicy;
  */
 public interface SpreadsheetAdapter {
 
-  InputOutputColumns determineInputOutputs(XlsxWorksheetContext context);
+  InputOutputColumns determineInputOutputs(Spreadsheet spreadsheet);
 
   /**
-   * @return the number of leading rows before the decision rules begin
+   * @return those rows that contain rule
    */
-  int numberHeaderRows();
+  List<SpreadsheetRow> determineRuleRows(Spreadsheet spreadsheet);
 
   /**
    * @return null to use the DMN default
    */
-  HitPolicy determineHitPolicy(XlsxWorksheetContext context);
+  HitPolicy determineHitPolicy(Spreadsheet spreadsheet);
+
+  String determineDecisionName(Spreadsheet spreadsheet);
+
+  /**
+   * order is important; add most specific converters first
+   */
+  List<CellContentHandler> getCellContentHandlers(Spreadsheet spreadsheet);
+
 }

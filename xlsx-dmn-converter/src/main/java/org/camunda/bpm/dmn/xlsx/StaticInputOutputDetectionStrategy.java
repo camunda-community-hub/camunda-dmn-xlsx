@@ -12,9 +12,10 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import java.util.List;
 import java.util.Set;
 
-import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
+import org.camunda.bpm.dmn.xlsx.api.Spreadsheet;
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetRow;
 import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
@@ -24,7 +25,7 @@ import org.camunda.bpm.model.dmn.HitPolicy;
  * @author Thorben Lindhauer
  *
  */
-public class StaticInputOutputDetectionStrategy implements SpreadsheetAdapter {
+public class StaticInputOutputDetectionStrategy extends BaseAdapter {
 
   protected Set<String> inputColumns;
   protected Set<String> outputColumns;
@@ -34,7 +35,7 @@ public class StaticInputOutputDetectionStrategy implements SpreadsheetAdapter {
     this.outputColumns = outputColumns;
   }
 
-  public InputOutputColumns determineInputOutputs(XlsxWorksheetContext context) {
+  public InputOutputColumns determineInputOutputs(Spreadsheet context) {
 
     SpreadsheetRow headerRow = context.getRows().get(0);
 
@@ -60,16 +61,18 @@ public class StaticInputOutputDetectionStrategy implements SpreadsheetAdapter {
   }
 
   @Override
-  public HitPolicy determineHitPolicy(XlsxWorksheetContext context) {
+  public HitPolicy determineHitPolicy(Spreadsheet context) {
     return null;
   }
 
-  private void fillHvc(SpreadsheetCell cell, XlsxWorksheetContext context, HeaderValuesContainer hvc) {
-    hvc.setText(context.resolveCellContent(cell));
-    hvc.setColumn(cell.getColumn());
+  @Override
+  public List<SpreadsheetRow> determineRuleRows(Spreadsheet context) {
+    List<SpreadsheetRow> rows = context.getRows();
+    return rows.subList(1, rows.size());
   }
 
-  public int numberHeaderRows() {
-    return 1;
+  private void fillHvc(SpreadsheetCell cell, Spreadsheet context, HeaderValuesContainer hvc) {
+    hvc.setText(context.resolveCellContent(cell));
+    hvc.setColumn(cell.getColumn());
   }
 }

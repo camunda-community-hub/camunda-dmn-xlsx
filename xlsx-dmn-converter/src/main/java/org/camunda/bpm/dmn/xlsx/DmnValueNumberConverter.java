@@ -12,6 +12,7 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import org.camunda.bpm.dmn.xlsx.api.Spreadsheet;
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
 import org.xlsx4j.sml.STCellType;
 
@@ -21,11 +22,11 @@ import org.xlsx4j.sml.STCellType;
  */
 public class DmnValueNumberConverter implements CellContentHandler {
 
-  public boolean canConvert(SpreadsheetCell cell, XlsxWorksheetContext context) {
+  public boolean canConvert(SpreadsheetCell cell, Spreadsheet context) {
     return STCellType.N.equals(cell.getRaw().getT());
   }
 
-  public String convert(SpreadsheetCell cell, XlsxWorksheetContext context) {
+  public String convert(SpreadsheetCell cell, Spreadsheet context) {
     return cell.getRaw().getV();
   }
 

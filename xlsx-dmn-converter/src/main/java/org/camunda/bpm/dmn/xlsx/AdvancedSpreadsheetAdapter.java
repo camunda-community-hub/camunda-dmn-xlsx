@@ -16,15 +16,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
+import org.camunda.bpm.dmn.xlsx.api.Spreadsheet;
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetRow;
 import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
 import org.camunda.bpm.model.dmn.HitPolicy;
 
-public class AdvancedSpreadsheetAdapter implements SpreadsheetAdapter {
+public class AdvancedSpreadsheetAdapter extends BaseAdapter {
 
-  public InputOutputColumns determineInputOutputs(XlsxWorksheetContext context) {
+  public InputOutputColumns determineInputOutputs(Spreadsheet context) {
     Set<String> inputColumns = new LinkedHashSet<>();
     Set<String> outputColumns = new LinkedHashSet<>();
 
@@ -62,7 +62,7 @@ public class AdvancedSpreadsheetAdapter implements SpreadsheetAdapter {
     return columns;
   }
 
-  public HitPolicy determineHitPolicy(XlsxWorksheetContext context) {
+  public HitPolicy determineHitPolicy(Spreadsheet context) {
     if (context.getRows().size() < 4) {
       return null;
     }
@@ -77,7 +77,13 @@ public class AdvancedSpreadsheetAdapter implements SpreadsheetAdapter {
     }
   }
 
-  private void fillHvc(XlsxWorksheetContext context, String column, HeaderValuesContainer hvc) {
+  @Override
+  public List<SpreadsheetRow> determineRuleRows(Spreadsheet context) {
+    List<SpreadsheetRow> rows = context.getRows();
+    return rows.subList(5, rows.size());
+  }
+
+  private void fillHvc(Spreadsheet context, String column, HeaderValuesContainer hvc) {
     SpreadsheetCell cell;
     cell = context.getRows().get(1).getCell(column);
     hvc.setLabel(context.resolveCellContent(cell));

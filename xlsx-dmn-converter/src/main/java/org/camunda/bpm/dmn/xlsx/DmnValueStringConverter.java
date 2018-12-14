@@ -12,6 +12,7 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import org.camunda.bpm.dmn.xlsx.api.Spreadsheet;
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
 import org.xlsx4j.sml.STCellType;
 
@@ -23,11 +24,11 @@ public class DmnValueStringConverter implements CellContentHandler {
 
   public static final DmnValueStringConverter INSTANCE = new DmnValueStringConverter();
 
-  public boolean canConvert(SpreadsheetCell cell, XlsxWorksheetContext context) {
+  public boolean canConvert(SpreadsheetCell cell, Spreadsheet context) {
     return STCellType.S.equals(cell.getRaw().getT());
   }
 
-  public String convert(SpreadsheetCell cell, XlsxWorksheetContext context) {
+  public String convert(SpreadsheetCell cell, Spreadsheet context) {
     String content = context.resolveCellContent(cell);
     return "\"" + content + "\"";
   }

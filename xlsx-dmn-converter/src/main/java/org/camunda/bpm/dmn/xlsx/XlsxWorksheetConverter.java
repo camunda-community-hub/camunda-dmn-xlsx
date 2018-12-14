@@ -42,43 +42,44 @@ import org.camunda.bpm.model.dmn.instance.Text;
  */
 public class XlsxWorksheetConverter {
 
+  static
+  {
+    CellContentHandler.DEFAULT_HANDLERS.add(new DmnValueRangeConverter());
+    CellContentHandler.DEFAULT_HANDLERS.add(new FeelSimpleUnaryTestConverter());
+    CellContentHandler.DEFAULT_HANDLERS.add(new DmnValueStringConverter());
+    CellContentHandler.DEFAULT_HANDLERS.add(new DmnValueNumberConverter());
+  }
+
   protected XlsxWorksheetContext worksheetContext;
   protected DmnConversionContext dmnConversionContext;
-  protected SpreadsheetAdapter ioDetectionStrategy;
+  protected SpreadsheetAdapter spreadsheetAdapter;
 
-  public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext, SpreadsheetAdapter ioDetectionStrategy) {
+  public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext, SpreadsheetAdapter spreadsheetAdapter) {
     this.worksheetContext = worksheetContext;
-    this.dmnConversionContext = new DmnConversionContext(worksheetContext);
-    this.ioDetectionStrategy = ioDetectionStrategy;
-
-    // order is important; add most specific converters first
-    this.dmnConversionContext.addCellContentHandler(new DmnValueRangeConverter());
-    this.dmnConversionContext.addCellContentHandler(new FeelSimpleUnaryTestConverter());
-    this.dmnConversionContext.addCellContentHandler(new DmnValueStringConverter());
-    this.dmnConversionContext.addCellContentHandler(new DmnValueNumberConverter());
+    this.dmnConversionContext = new DmnConversionContext(worksheetContext, spreadsheetAdapter.getCellContentHandlers(worksheetContext));
+    this.spreadsheetAdapter = spreadsheetAdapter;
   }
 
   public DmnModelInstance convert() {
 
     DmnModelInstance dmnModel = initializeEmptyDmnModel();
 
-    Decision decision = generateNamedElement(dmnModel, Decision.class, worksheetContext.getName());
+    Decision decision = generateElement(dmnModel, Decision.class, worksheetContext.getName());
+    decision.setName(spreadsheetAdapter.determineDecisionName(worksheetContext));
     dmnModel.getDefinitions().addChildElement(decision);
 
     DecisionTable decisionTable = generateElement(dmnModel, DecisionTable.class, "decisionTable");
     decision.addChildElement(decisionTable);
 
-    List<SpreadsheetRow> rows = worksheetContext.getRows();
-
     setHitPolicy(decisionTable);
     convertInputsOutputs(dmnModel, decisionTable);
-    convertRules(dmnModel, decisionTable, rows.subList(ioDetectionStrategy.numberHeaderRows(), rows.size()));
+    convertRules(dmnModel, decisionTable, spreadsheetAdapter.determineRuleRows(worksheetContext));
 
     return dmnModel;
   }
 
   protected void setHitPolicy(DecisionTable decisionTable) {
-    HitPolicy hitPolicy = ioDetectionStrategy.determineHitPolicy(worksheetContext);
+    HitPolicy hitPolicy = spreadsheetAdapter.determineHitPolicy(worksheetContext);
     if (hitPolicy != null) {
       decisionTable.setHitPolicy(hitPolicy);
     }
@@ -86,7 +87,7 @@ public class XlsxWorksheetConverter {
 
   protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable) {
 
-    InputOutputColumns inputOutputColumns = ioDetectionStrategy.determineInputOutputs(worksheetContext);
+    InputOutputColumns inputOutputColumns = spreadsheetAdapter.determineInputOutputs(worksheetContext);
 
     // inputs
     for (HeaderValuesContainer hvc : inputOutputColumns.getInputHeaders()) {
