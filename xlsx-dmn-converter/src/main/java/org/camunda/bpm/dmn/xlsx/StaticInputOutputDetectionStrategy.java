@@ -14,9 +14,10 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.util.Set;
 
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetRow;
 import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
-import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
-import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
 import org.camunda.bpm.model.dmn.HitPolicy;
 
 /**
@@ -33,11 +34,14 @@ public class StaticInputOutputDetectionStrategy implements SpreadsheetAdapter {
     this.outputColumns = outputColumns;
   }
 
-  public InputOutputColumns determineInputOutputs(IndexedRow headerRow, XlsxWorksheetContext context) {
+  public InputOutputColumns determineInputOutputs(XlsxWorksheetContext context) {
+
+    SpreadsheetRow headerRow = context.getRows().get(0);
+
     InputOutputColumns columns = new InputOutputColumns();
 
     HeaderValuesContainer hvc;
-    for (IndexedCell cell : headerRow.getCells()) {
+    for (SpreadsheetCell cell : headerRow.getCells()) {
       if (inputColumns.contains(cell.getColumn())) {
         hvc = new HeaderValuesContainer();
         fillHvc(cell, context, hvc);
@@ -60,8 +64,8 @@ public class StaticInputOutputDetectionStrategy implements SpreadsheetAdapter {
     return null;
   }
 
-  private void fillHvc(IndexedCell cell, XlsxWorksheetContext context, HeaderValuesContainer hvc) {
-    hvc.setText(context.resolveCellValue(cell.getCell()));
+  private void fillHvc(SpreadsheetCell cell, XlsxWorksheetContext context, HeaderValuesContainer hvc) {
+    hvc.setText(context.resolveCellContent(cell));
     hvc.setColumn(cell.getColumn());
   }
 

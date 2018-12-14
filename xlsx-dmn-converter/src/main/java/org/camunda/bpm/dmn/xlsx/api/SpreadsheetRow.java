@@ -10,23 +10,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.camunda.bpm.dmn.xlsx;
+package org.camunda.bpm.dmn.xlsx.api;
 
-import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
-import org.xlsx4j.sml.STCellType;
+import java.util.Collection;
+import java.util.List;
 
-/**
- * @author Thorben Lindhauer
- *
- */
-public class DmnValueNumberConverter implements CellContentHandler {
+import org.xlsx4j.sml.Row;
 
-  public boolean canConvert(SpreadsheetCell cell, XlsxWorksheetContext context) {
-    return STCellType.N.equals(cell.getRaw().getT());
-  }
+public interface SpreadsheetRow {
 
-  public String convert(SpreadsheetCell cell, XlsxWorksheetContext context) {
-    return cell.getRaw().getV();
-  }
+  Collection<String> getColumns();
 
+  SpreadsheetCell getCell(String column);
+
+  List<SpreadsheetCell> getCells();
+
+  boolean hasCells();
+
+  /**
+   * @return the corresponding doc4j object => no API guarantees from here on :)
+   */
+  Row getRaw();
 }

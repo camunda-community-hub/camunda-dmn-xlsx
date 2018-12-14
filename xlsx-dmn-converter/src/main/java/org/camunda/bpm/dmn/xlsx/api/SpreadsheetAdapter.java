@@ -10,9 +10,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.camunda.bpm.dmn.xlsx;
+package org.camunda.bpm.dmn.xlsx.api;
 
-import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
+import org.camunda.bpm.dmn.xlsx.InputOutputColumns;
+import org.camunda.bpm.dmn.xlsx.XlsxWorksheetContext;
 import org.camunda.bpm.model.dmn.HitPolicy;
 
 /**
@@ -21,7 +22,7 @@ import org.camunda.bpm.model.dmn.HitPolicy;
  */
 public interface SpreadsheetAdapter {
 
-  InputOutputColumns determineInputOutputs(IndexedRow headerRow, XlsxWorksheetContext context);
+  InputOutputColumns determineInputOutputs(XlsxWorksheetContext context);
 
   /**
    * @return the number of leading rows before the decision rules begin

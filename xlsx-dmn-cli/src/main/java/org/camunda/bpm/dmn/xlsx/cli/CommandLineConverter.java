@@ -19,9 +19,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.camunda.bpm.dmn.xlsx.AdvancedSpreadsheetAdapter;
-import org.camunda.bpm.dmn.xlsx.SpreadsheetAdapter;
 import org.camunda.bpm.dmn.xlsx.StaticInputOutputDetectionStrategy;
 import org.camunda.bpm.dmn.xlsx.XlsxConverter;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
 import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 
@@ -54,12 +54,12 @@ public class CommandLineConverter {
     Set<String> outputs = null;
     for (int i = 0; i < args.length - 2; i++) {
       if ("--inputs".equals(args[i])) {
-        inputs = new HashSet<String>();
+        inputs = new HashSet<>();
         inputs.addAll(Arrays.asList(args[i + 1].split(",")));
       }
 
       if ("--outputs".equals(args[i])) {
-        outputs = new HashSet<String>();
+        outputs = new HashSet<>();
         outputs.addAll(Arrays.asList(args[i + 1].split(",")));
       }
 

@@ -15,13 +15,14 @@ package org.camunda.bpm.dmn.xlsx.elements;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
 import org.xlsx4j.sml.Cell;
 
 /**
  * @author Thorben Lindhauer
  *
  */
-public class IndexedCell {
+public class IndexedCell implements SpreadsheetCell {
 
   public static final Pattern CELL_REF_PATTERN = Pattern.compile("([A-Z]+)([0-9]+)");
 
@@ -44,7 +45,7 @@ public class IndexedCell {
     row = Integer.parseInt(matcher.group(2));
   }
 
-  public Cell getCell() {
+  public Cell getRaw() {
     return cell;
   }
 

@@ -15,6 +15,9 @@ package org.camunda.bpm.dmn.xlsx;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.camunda.bpm.dmn.xlsx.api.Spreadsheet;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetRow;
 import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
 import org.xlsx4j.sml.CTRst;
 import org.xlsx4j.sml.CTSst;
@@ -27,7 +30,7 @@ import org.xlsx4j.sml.Worksheet;
  * @author Thorben Lindhauer
  *
  */
-public class XlsxWorksheetContext {
+public class XlsxWorksheetContext implements Spreadsheet {
 
   protected List<CellContentHandler> cellContentHandlers;
   protected CTSst sharedStrings;
@@ -35,18 +38,18 @@ public class XlsxWorksheetContext {
   protected String worksheetName;
 
   // cached state
-  protected List<IndexedRow> indexedRows;
+  protected List<SpreadsheetRow> indexedRows;
 
   public XlsxWorksheetContext(CTSst sharedStrings, Worksheet worksheet, String worksheetName) {
     this.sharedStrings = sharedStrings;
     this.worksheet = worksheet;
-    this.cellContentHandlers = new ArrayList<CellContentHandler>();
+    this.cellContentHandlers = new ArrayList<>();
     this.worksheetName = worksheetName;
   }
 
-  public List<IndexedRow> getRows() {
+  public List<SpreadsheetRow> getRows() {
     if (indexedRows == null) {
-      indexedRows = new ArrayList<IndexedRow>();
+      indexedRows = new ArrayList<>();
       for (Row row : worksheet.getSheetData().getRow()) {
         indexedRows.add(new IndexedRow(row));
       }
@@ -59,18 +62,22 @@ public class XlsxWorksheetContext {
     return siElements.get(index).getT().getValue();
   }
 
-  public String resolveCellValue(Cell cell) {
-    STCellType cellType = cell.getT();
+  @Override
+  public String resolveCellContent(SpreadsheetCell cell) {
+    Cell rawCell = cell.getRaw();
+
+    STCellType cellType = rawCell.getT();
     if (STCellType.S.equals(cellType)) {
-      int sharedStringIndex = Integer.parseInt(cell.getV());
+      int sharedStringIndex = Integer.parseInt(rawCell.getV());
       return resolveSharedString(sharedStringIndex);
     }
     else {
-      return cell.getV();
+      return rawCell.getV();
     }
   }
 
-  public String getWorksheetName() {
+  @Override
+  public String getName() {
     return worksheetName;
   }
 

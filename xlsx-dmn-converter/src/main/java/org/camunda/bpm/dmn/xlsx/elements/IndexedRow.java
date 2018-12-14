@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetRow;
 import org.xlsx4j.sml.Cell;
 import org.xlsx4j.sml.Row;
 
@@ -27,18 +29,18 @@ import org.xlsx4j.sml.Row;
  * @author Thorben Lindhauer
  *
  */
-public class IndexedRow {
+public class IndexedRow implements SpreadsheetRow {
 
   public static final Pattern CELL_REF_PATTERN = Pattern.compile("([A-Z]+)([0-9]+)");
 
   protected Row row;
-  protected List<IndexedCell> cells;
-  protected Map<String, IndexedCell> cellsByColumn;
+  protected List<SpreadsheetCell> cells;
+  protected Map<String, SpreadsheetCell> cellsByColumn;
 
   public IndexedRow(Row row) {
     this.row = row;
-    this.cells = new ArrayList<IndexedCell>();
-    this.cellsByColumn = new HashMap<String, IndexedCell>();
+    this.cells = new ArrayList<>();
+    this.cellsByColumn = new HashMap<>();
 
     for (Cell cell : row.getC()) {
       IndexedCell indexedCell = new IndexedCell(cell);
@@ -54,7 +56,7 @@ public class IndexedRow {
     return matcher.group(1);
   }
 
-  public Row getRow() {
+  public Row getRaw() {
     return row;
   }
 
@@ -62,7 +64,7 @@ public class IndexedRow {
     return cellsByColumn.keySet();
   }
 
-  public IndexedCell getCell(String column) {
+  public SpreadsheetCell getCell(String column) {
     return cellsByColumn.get(column);
   }
 
@@ -70,7 +72,7 @@ public class IndexedRow {
     return !cells.isEmpty();
   }
 
-  public List<IndexedCell> getCells() {
+  public List<SpreadsheetCell> getCells() {
     return cells;
   }
 }

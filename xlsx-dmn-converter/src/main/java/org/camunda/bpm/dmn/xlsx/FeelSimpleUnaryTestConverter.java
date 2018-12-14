@@ -12,6 +12,7 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
 import org.xlsx4j.sml.Cell;
 import org.xlsx4j.sml.STCellType;
 
@@ -21,16 +22,18 @@ import org.xlsx4j.sml.STCellType;
  */
 public class FeelSimpleUnaryTestConverter implements CellContentHandler {
 
-  public boolean canConvert(Cell cell, XlsxWorksheetContext context) {
-    if (!STCellType.S.equals(cell.getT())) {
+  public boolean canConvert(SpreadsheetCell cell, XlsxWorksheetContext context) {
+    Cell rawCell = cell.getRaw();
+
+    if (!STCellType.S.equals(rawCell.getT())) {
       return false;
     }
 
-    String rawContent = context.resolveCellValue(cell);
+    String rawContent = context.resolveCellContent(cell);
     return rawContent.startsWith(">") || rawContent.startsWith("<");
   }
 
-  public String convert(Cell cell, XlsxWorksheetContext context) {
-    return context.resolveCellValue(cell);
+  public String convert(SpreadsheetCell cell, XlsxWorksheetContext context) {
+    return context.resolveCellContent(cell);
   }
 }

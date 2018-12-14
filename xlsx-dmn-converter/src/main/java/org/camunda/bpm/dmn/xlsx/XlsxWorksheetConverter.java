@@ -14,15 +14,28 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.util.List;
 
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetRow;
 import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
-import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
 import org.camunda.bpm.dmn.xlsx.elements.IndexedDmnColumns;
-import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
 import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.bpm.model.dmn.HitPolicy;
 import org.camunda.bpm.model.dmn.impl.DmnModelConstants;
-import org.camunda.bpm.model.dmn.instance.*;
+import org.camunda.bpm.model.dmn.instance.Decision;
+import org.camunda.bpm.model.dmn.instance.DecisionTable;
+import org.camunda.bpm.model.dmn.instance.Definitions;
+import org.camunda.bpm.model.dmn.instance.Description;
+import org.camunda.bpm.model.dmn.instance.DmnElement;
+import org.camunda.bpm.model.dmn.instance.Input;
+import org.camunda.bpm.model.dmn.instance.InputEntry;
+import org.camunda.bpm.model.dmn.instance.InputExpression;
+import org.camunda.bpm.model.dmn.instance.NamedElement;
+import org.camunda.bpm.model.dmn.instance.Output;
+import org.camunda.bpm.model.dmn.instance.OutputEntry;
+import org.camunda.bpm.model.dmn.instance.Rule;
+import org.camunda.bpm.model.dmn.instance.Text;
 
 /**
  * @author Thorben Lindhauer
@@ -49,16 +62,16 @@ public class XlsxWorksheetConverter {
 
     DmnModelInstance dmnModel = initializeEmptyDmnModel();
 
-    Decision decision = generateNamedElement(dmnModel, Decision.class, worksheetContext.getWorksheetName());
+    Decision decision = generateNamedElement(dmnModel, Decision.class, worksheetContext.getName());
     dmnModel.getDefinitions().addChildElement(decision);
 
     DecisionTable decisionTable = generateElement(dmnModel, DecisionTable.class, "decisionTable");
     decision.addChildElement(decisionTable);
 
-    List<IndexedRow> rows = worksheetContext.getRows();
+    List<SpreadsheetRow> rows = worksheetContext.getRows();
 
     setHitPolicy(decisionTable);
-    convertInputsOutputs(dmnModel, decisionTable, rows.get(0));
+    convertInputsOutputs(dmnModel, decisionTable);
     convertRules(dmnModel, decisionTable, rows.subList(ioDetectionStrategy.numberHeaderRows(), rows.size()));
 
     return dmnModel;
@@ -71,9 +84,9 @@ public class XlsxWorksheetConverter {
     }
   }
 
-  protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable, IndexedRow header) {
+  protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable) {
 
-    InputOutputColumns inputOutputColumns = ioDetectionStrategy.determineInputOutputs(header, worksheetContext);
+    InputOutputColumns inputOutputColumns = ioDetectionStrategy.determineInputOutputs(worksheetContext);
 
     // inputs
     for (HeaderValuesContainer hvc : inputOutputColumns.getInputHeaders()) {
@@ -88,16 +101,16 @@ public class XlsxWorksheetConverter {
 
       // optionals
       if (hvc.getLabel() != null) {
-	    input.setLabel(hvc.getLabel());
+        input.setLabel(hvc.getLabel());
       }
-	  if (hvc.getTypeRef() != null) {
-	    inputExpression.setTypeRef(hvc.getTypeRef());
+      if (hvc.getTypeRef() != null) {
+        inputExpression.setTypeRef(hvc.getTypeRef());
       }
-	  if (hvc.getExpressionLanguage() != null) {
-	    inputExpression.setExpressionLanguage(hvc.getExpressionLanguage());
+      if (hvc.getExpressionLanguage() != null) {
+        inputExpression.setExpressionLanguage(hvc.getExpressionLanguage());
       }
 
-      dmnConversionContext.getIndexedDmnColumns().addInput(getIndexedCellForColumn(header, hvc.getColumn()), input);
+      dmnConversionContext.getIndexedDmnColumns().addInput(hvc.getColumn(), input);
     }
 
     // outputs
@@ -110,59 +123,55 @@ public class XlsxWorksheetConverter {
 
       // optionals
       if (hvc.getLabel() != null) {
-	      output.setLabel(hvc.getLabel());
+        output.setLabel(hvc.getLabel());
       }
       if (hvc.getTypeRef() != null) {
-	      output.setTypeRef(hvc.getTypeRef());
+        output.setTypeRef(hvc.getTypeRef());
       }
 
-      dmnConversionContext.getIndexedDmnColumns().addOutput(getIndexedCellForColumn(header, hvc.getColumn()), output);
+      dmnConversionContext.getIndexedDmnColumns().addOutput(hvc.getColumn(), output);
     }
 
   }
 
-  protected IndexedCell getIndexedCellForColumn(IndexedRow header, String column) {
-      return header.getCell(column);
-  }
-
-  protected void convertRules(DmnModelInstance dmnModel, DecisionTable decisionTable, List<IndexedRow> rulesRows) {
-    for (IndexedRow rule : rulesRows) {
+  protected void convertRules(DmnModelInstance dmnModel, DecisionTable decisionTable, List<SpreadsheetRow> rulesRows) {
+    for (SpreadsheetRow rule : rulesRows) {
       convertRule(dmnModel, decisionTable, rule);
     }
   }
 
-  protected void convertRule(DmnModelInstance dmnModel, DecisionTable decisionTable, IndexedRow ruleRow) {
-    Rule rule = generateElement(dmnModel, Rule.class, "excelRow" + ruleRow.getRow().getR());
+  protected void convertRule(DmnModelInstance dmnModel, DecisionTable decisionTable, SpreadsheetRow ruleRow) {
+    Rule rule = generateElement(dmnModel, Rule.class, "excelRow" + ruleRow.getRaw().getR());
     decisionTable.addChildElement(rule);
 
     IndexedDmnColumns dmnColumns = dmnConversionContext.getIndexedDmnColumns();
 
     for (Input input : dmnColumns.getOrderedInputs()) {
-      String xlsxColumn = dmnColumns.getXlsxColumn(input);
-      IndexedCell cell = ruleRow.getCell(xlsxColumn);
-      String coordinate = xlsxColumn + ruleRow.getRow().getR();
+      String xlsxColumn = dmnColumns.getSpreadsheetColumn(input);
+      SpreadsheetCell cell = ruleRow.getCell(xlsxColumn);
+      String coordinate = xlsxColumn + ruleRow.getRaw().getR();
 
       InputEntry inputEntry = generateElement(dmnModel, InputEntry.class, coordinate);
-      String textValue = cell != null ? dmnConversionContext.resolveCellValue(cell.getCell()) : getDefaultCellContent();
+      String textValue = cell != null ? dmnConversionContext.resolveCellValue(cell) : getDefaultCellContent();
       Text text = generateText(dmnModel, textValue);
       inputEntry.setText(text);
       rule.addChildElement(inputEntry);
     }
 
     for (Output output : dmnColumns.getOrderedOutputs()) {
-      String xlsxColumn = dmnColumns.getXlsxColumn(output);
-      IndexedCell cell = ruleRow.getCell(xlsxColumn);
-      String coordinate = xlsxColumn + ruleRow.getRow().getR();
+      String xlsxColumn = dmnColumns.getSpreadsheetColumn(output);
+      SpreadsheetCell cell = ruleRow.getCell(xlsxColumn);
+      String coordinate = xlsxColumn + ruleRow.getRaw().getR();
 
       OutputEntry outputEntry = generateElement(dmnModel, OutputEntry.class, coordinate);
-      String textValue = cell != null ? dmnConversionContext.resolveCellValue(cell.getCell()) : getDefaultCellContent();
+      String textValue = cell != null ? dmnConversionContext.resolveCellValue(cell) : getDefaultCellContent();
       Text text = generateText(dmnModel, textValue);
       outputEntry.setText(text);
       rule.addChildElement(outputEntry);
     }
 
-    IndexedCell annotationCell = ruleRow.getCells().get(ruleRow.getCells().size() - 1);
-    Description description =  generateDescription(dmnModel, worksheetContext.resolveCellValue(annotationCell.getCell()));
+    SpreadsheetCell annotationCell = ruleRow.getCells().get(ruleRow.getCells().size() - 1);
+    Description description =  generateDescription(dmnModel, worksheetContext.resolveCellContent(annotationCell));
     rule.setDescription(description);
 
   }

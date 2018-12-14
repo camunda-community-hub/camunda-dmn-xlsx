@@ -12,7 +12,7 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
-import org.xlsx4j.sml.Cell;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
 
 /**
  * @author Thorben Lindhauer
@@ -20,8 +20,8 @@ import org.xlsx4j.sml.Cell;
  */
 public interface CellContentHandler {
 
-  boolean canConvert(Cell cell, XlsxWorksheetContext context);
+  boolean canConvert(SpreadsheetCell cell, XlsxWorksheetContext context);
 
-  String convert(Cell cell, XlsxWorksheetContext context);
+  String convert(SpreadsheetCell cell, XlsxWorksheetContext context);
 
 }

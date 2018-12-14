@@ -12,28 +12,31 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
-import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
-import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
-import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
-import org.camunda.bpm.model.dmn.HitPolicy;
-
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetRow;
+import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
+import org.camunda.bpm.model.dmn.HitPolicy;
+
 public class AdvancedSpreadsheetAdapter implements SpreadsheetAdapter {
 
-  public InputOutputColumns determineInputOutputs(IndexedRow headerRow, XlsxWorksheetContext context) {
-    Set<String> inputColumns = new LinkedHashSet<String>();
-    Set<String> outputColumns = new LinkedHashSet<String>();
+  public InputOutputColumns determineInputOutputs(XlsxWorksheetContext context) {
+    Set<String> inputColumns = new LinkedHashSet<>();
+    Set<String> outputColumns = new LinkedHashSet<>();
 
-    List<IndexedCell> cells = headerRow.getCells();
+    SpreadsheetRow headerRow = context.getRows().get(0);
 
-    for (IndexedCell indexedCell: cells) {
-      if("input".equalsIgnoreCase(context.resolveCellValue(indexedCell.getCell()))) {
+    List<SpreadsheetCell> cells = headerRow.getCells();
+
+    for (SpreadsheetCell indexedCell : cells) {
+      if("input".equalsIgnoreCase(context.resolveCellContent(indexedCell))) {
         inputColumns.add(indexedCell.getColumn());
       }
-      if("output".equalsIgnoreCase(context.resolveCellValue(indexedCell.getCell()))) {
+      if("output".equalsIgnoreCase(context.resolveCellContent(indexedCell))) {
         outputColumns.add(indexedCell.getColumn());
       }
     }
@@ -63,9 +66,9 @@ public class AdvancedSpreadsheetAdapter implements SpreadsheetAdapter {
     if (context.getRows().size() < 4) {
       return null;
     }
-    IndexedRow row = context.getRows().get(4);
+    SpreadsheetRow row = context.getRows().get(4);
     if (row.getCell("A") != null) {
-      final String hitPolicyString = context.resolveCellValue(row.getCell("A").getCell()).toUpperCase();
+      final String hitPolicyString = context.resolveCellContent(row.getCell("A")).toUpperCase();
       return HitPolicy.valueOf(hitPolicyString);
     }
     else
@@ -75,15 +78,15 @@ public class AdvancedSpreadsheetAdapter implements SpreadsheetAdapter {
   }
 
   private void fillHvc(XlsxWorksheetContext context, String column, HeaderValuesContainer hvc) {
-    IndexedCell cell;
+    SpreadsheetCell cell;
     cell = context.getRows().get(1).getCell(column);
-    hvc.setLabel(context.resolveCellValue(cell.getCell()));
+    hvc.setLabel(context.resolveCellContent(cell));
     cell = context.getRows().get(2).getCell(column);
-    hvc.setExpressionLanguage(context.resolveCellValue(cell.getCell()));
+    hvc.setExpressionLanguage(context.resolveCellContent(cell));
     cell = context.getRows().get(3).getCell(column);
-    hvc.setText(context.resolveCellValue(cell.getCell()));
+    hvc.setText(context.resolveCellContent(cell));
     cell = context.getRows().get(4).getCell(column);
-    hvc.setTypeRef(context.resolveCellValue(cell.getCell()));
+    hvc.setTypeRef(context.resolveCellContent(cell));
     hvc.setColumn(column);
   }
 

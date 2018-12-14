@@ -14,9 +14,10 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.util.List;
 
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetRow;
 import org.camunda.bpm.dmn.xlsx.elements.HeaderValuesContainer;
-import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
-import org.camunda.bpm.dmn.xlsx.elements.IndexedRow;
 import org.camunda.bpm.model.dmn.HitPolicy;
 
 /**
@@ -25,22 +26,25 @@ import org.camunda.bpm.model.dmn.HitPolicy;
  */
 public class SimpleInputOutputDetectionStrategy implements SpreadsheetAdapter {
 
-  public InputOutputColumns determineInputOutputs(IndexedRow headerRow, XlsxWorksheetContext context) {
+  public InputOutputColumns determineInputOutputs(XlsxWorksheetContext context) {
+
+    SpreadsheetRow headerRow = context.getRows().get(0);
+
     if (!headerRow.hasCells()) {
       throw new RuntimeException("A dmn table requires at least one output; the header row contains no entries");
     }
 
     InputOutputColumns ioColumns = new InputOutputColumns();
 
-    List<IndexedCell> cells = headerRow.getCells();
+    List<SpreadsheetCell> cells = headerRow.getCells();
     HeaderValuesContainer hvc = new HeaderValuesContainer();
-    IndexedCell outputCell = cells.get(cells.size() - 1);
+    SpreadsheetCell outputCell = cells.get(cells.size() - 1);
     fillHvc(outputCell, context, hvc);
     hvc.setId("Output" + outputCell.getColumn());
 
     ioColumns.addOutputHeader(hvc);
 
-    for (IndexedCell inputCell : cells.subList(0, cells.size() - 1)) {
+    for (SpreadsheetCell inputCell : cells.subList(0, cells.size() - 1)) {
       hvc = new HeaderValuesContainer();
       fillHvc(inputCell, context, hvc);
       hvc.setId("Input" + inputCell.getColumn());
@@ -55,8 +59,8 @@ public class SimpleInputOutputDetectionStrategy implements SpreadsheetAdapter {
     return null;
   }
 
-  private void fillHvc(IndexedCell cell, XlsxWorksheetContext context, HeaderValuesContainer hvc) {
-    hvc.setText(context.resolveCellValue(cell.getCell()));
+  private void fillHvc(SpreadsheetCell cell, XlsxWorksheetContext context, HeaderValuesContainer hvc) {
+    hvc.setText(context.resolveCellContent(cell));
     hvc.setColumn(cell.getColumn());
   }
 

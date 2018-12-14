@@ -14,6 +14,7 @@ package org.camunda.bpm.dmn.xlsx;
 
 import java.io.InputStream;
 
+import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.docx4j.docProps.extended.Properties;
 import org.docx4j.openpackaging.exceptions.Docx4JException;

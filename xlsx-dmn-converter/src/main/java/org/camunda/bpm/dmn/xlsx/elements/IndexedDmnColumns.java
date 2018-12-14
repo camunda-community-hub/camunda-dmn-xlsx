@@ -26,12 +26,12 @@ import org.camunda.bpm.model.dmn.instance.Output;
  */
 public class IndexedDmnColumns {
 
-  protected Map<Input, IndexedCell> headerCellsByInput = new HashMap<Input, IndexedCell>();
-  protected Map<Output, IndexedCell> headerCellsByOutput = new HashMap<Output, IndexedCell>();
+  protected Map<Input, String> inputColumns = new HashMap<>();
+  protected Map<Output, String> outputColumns = new HashMap<>();
 
   // as they appear in the resulting DMN table
-  protected List<Input> orderedInputs = new ArrayList<Input>();
-  protected List<Output> orderedOutputs = new ArrayList<Output>();
+  protected List<Input> orderedInputs = new ArrayList<>();
+  protected List<Output> orderedOutputs = new ArrayList<>();
 
   public List<Input> getOrderedInputs() {
     return orderedInputs;
@@ -41,24 +41,22 @@ public class IndexedDmnColumns {
     return orderedOutputs;
   }
 
-  public String getXlsxColumn(Input input) {
-    IndexedCell headerCell = headerCellsByInput.get(input);
-    return headerCell.getColumn();
+  public String getSpreadsheetColumn(Input input) {
+    return inputColumns.get(input);
   }
 
-  public String getXlsxColumn(Output output) {
-    IndexedCell headerCell = headerCellsByOutput.get(output);
-    return headerCell.getColumn();
+  public String getSpreadsheetColumn(Output output) {
+    return outputColumns.get(output);
   }
 
-  public void addInput(IndexedCell cell, Input input) {
+  public void addInput(String column, Input input) {
     this.orderedInputs.add(input);
-    this.headerCellsByInput.put(input, cell);
+    this.inputColumns.put(input, column);
   }
 
-  public void addOutput(IndexedCell cell, Output output) {
+  public void addOutput(String column, Output output) {
     this.orderedOutputs.add(output);
-    this.headerCellsByOutput.put(output, cell);
+    this.outputColumns.put(output, column);
   }
 
 }
