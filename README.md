@@ -6,6 +6,28 @@ This project has two components:
 1. A standalone converter to transform Excel worksheets (xlsx files) into DMN decision tables (dmn files), implemented and embeddable in Java.
 2. A [Camunda BPM](https://www.camunda.org) process engine plugin to enable xlsx deployment as part of process applications. Xlsx files are then converted on the fly to DMN tables.
 
+## Examples
+
+### Simple Mode
+
+See also: [Camunda Team Blog: Converting Excel Worksheets to DMN](https://blog.camunda.com/post/2016/01/excel-dmn-conversion/)
+
+#### Input: Spreadsheet
+
+![Screenshot Simple Spreadsheet](screenshot-simple.png)
+
+#### Output: DMN Decision Table
+
+![Screenshot Simple Spreadsheet converted into DMN](screenshot-simple-dmn.png)
+
+### Advanced Mode
+
+See also: [Added support for a new "advanced" detection strategy #8](https://github.com/camunda/camunda-dmn-xlsx/pull/23)
+
+[Example spreadsheet file](https://github.com/camunda/camunda-dmn-xlsx/blob/master/xlsx-dmn-converter/src/test/resources/test6.xlsx)
+
+![Screenshot Advanced Mode Spreadsheet](screenshot-advanced.png)
+
 Features
 --------
 
