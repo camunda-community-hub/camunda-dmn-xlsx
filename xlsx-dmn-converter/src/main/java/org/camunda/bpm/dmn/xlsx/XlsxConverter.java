@@ -19,6 +19,7 @@ import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.docx4j.docProps.extended.Properties;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.docx4j.openpackaging.parts.DocPropsExtendedPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.SharedStrings;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
@@ -47,10 +48,10 @@ public class XlsxConverter {
 
     WorksheetPart worksheetPart;
     try {
-      Properties properties = spreadSheetPackage.getDocPropsExtendedPart().getContents();
       String worksheetName;
-      if(properties.getTitlesOfParts() != null) {
-        worksheetName = (String) properties.getTitlesOfParts().getVector().getVariantOrI1OrI2().get(0).getValue();
+      DocPropsExtendedPart docPropsExtendedPart = spreadSheetPackage.getDocPropsExtendedPart();
+      if(docPropsExtendedPart!= null && docPropsExtendedPart.getContents().getTitlesOfParts() != null) {
+        worksheetName = (String) docPropsExtendedPart.getContents().getTitlesOfParts().getVector().getVariantOrI1OrI2().get(0).getValue();
       } else {
         worksheetName = "default";
       }
