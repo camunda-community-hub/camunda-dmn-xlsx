@@ -41,6 +41,8 @@ jobs:
           common/github.com/actions/camunda MAVEN_CENTRAL_GPG_SIGNING_KEY_SEC | MAVEN_CENTRAL_GPG_SIGNING_KEY_SEC;
           common/github.com/actions/camunda MAVEN_CENTRAL_DEPLOYMENT_PSW | MAVEN_CENTRAL_DEPLOYMENT_PSW;
           common/github.com/actions/camunda MAVEN_CENTRAL_DEPLOYMENT_USR | MAVEN_CENTRAL_DEPLOYMENT_USR;
+    - name: Import GPG keys
+      run: echo -e "${MAVEN_CENTRAL_GPG_SIGNING_KEY_SEC}\n\n${MAVEN_CENTRAL_GPG_SIGNING_KEY_PUB}" | base64 -d | gpg -q --import --no-tty --batch --yes --allow-secret-key-import
     - name: Set up Nexus authentication
       uses: actions/setup-java@v1
       with:
@@ -70,8 +72,6 @@ jobs:
       run: mvn -B clean install
     - name: Publish package (${{ steps.release-detection.outputs.type }})
       run: |-
-        echo -e "${MVN_CENTRAL_GPG_KEY_SEC}" gpg -q --allow-secret-key-import --import
-        echo -e "${MVN_CENTRAL_GPG_KEY_PUB}" gpg -q --allow-secret-key-import --import
         mvn -B deploy -DskiptTests=true -Dgpg.passphrase="${GPG_PASSPHRASE}"
 
         sed -i 's@:camunda-nexus:.*$@:central:https://oss.sonatype.org/content/repositories/snapshots/@g' target/nexus-staging/deferred/.index
@@ -101,5 +101,5 @@ jobs:
         git fetch
         git checkout -b ${{ github.event.repository.default_branch }} --track origin/${{ github.event.repository.default_branch }}
         mvn -B org.apache.maven.plugins:maven-release-plugin:update-versions -DgenerateBackupPoms=false
-        git add **pom.xml
+        git add "**pom.xml"
         mvn -B scm:checkin -Dbasedir=. -Dmessage="release(v${{ github.event.release.tag_name }}): bump version" -DdeveloperConnectionUrl="scm:git:https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${{ github.event.repository.full_name }}.git"
