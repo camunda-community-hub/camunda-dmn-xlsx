@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.camunda.bpm.extension.dmn</groupId>
     <artifactId>xlsx-dmn-root</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.3.0</version>
   </parent>
 
   <artifactId>dmn-xlsx-process-engine-plugin</artifactId>
@@ -21,7 +21,7 @@
     <dependency>
       <groupId>org.camunda.bpm.extension.dmn</groupId>
       <artifactId>dmn-xlsx-converter</artifactId>
-      <version>0.2.1-SNAPSHOT</version>
+      <version>0.3.0</version>
       <exclusions>
         <exclusion>
           <artifactId>camunda-dmn-model</artifactId>

@@ -4,7 +4,7 @@
 
     <groupId>org.camunda.bpm.extension.dmn</groupId>
     <artifactId>xlsx-dmn-root</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.3.0</version>
     <name>DMN-XLSX Root</name>
 
     <packaging>pom</packaging>
@@ -82,7 +82,7 @@
         <connection>scm:git:git@github.com:camunda/camunda-dmn-xlsx.git</connection>
         <url>scm:git:git@github.com:camunda/camunda-dmn-xlsx.git</url>
         <developerConnection>scm:git:git@github.com:camunda/camunda-dmn-xlsx.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>0.3.0</tag>
     </scm>
 
     <!-- repositories used for distribution of releases and snapshots, DO NOT CHANGE -->
