@@ -59,7 +59,11 @@ public class XlsxWorksheetContext implements Spreadsheet {
 
   public String resolveSharedString(int index) {
     List<CTRst> siElements = sharedStrings.getSi();
-    return siElements.get(index).getT().getValue();
+    return siElements.get(index).getT() == null
+            // returning default cell content (see org.camunda.bpm.dmn.xlsx.XlsxWorksheetConverter.getDefaultCellContent)
+            // in case T is null to avoid NPE
+            ? "-"
+            : siElements.get(index).getT().getValue();
   }
 
   @Override
