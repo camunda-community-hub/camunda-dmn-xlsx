@@ -29,10 +29,16 @@ public class StaticInputOutputDetectionStrategy extends BaseAdapter {
 
   protected Set<String> inputColumns;
   protected Set<String> outputColumns;
+  protected HitPolicy hitPolicy;
 
   public StaticInputOutputDetectionStrategy(Set<String> inputColumns, Set<String> outputColumns) {
+    this(inputColumns, outputColumns, null);
+  }
+
+  public StaticInputOutputDetectionStrategy(Set<String> inputColumns, Set<String> outputColumns, HitPolicy hitPolicy) {
     this.inputColumns = inputColumns;
     this.outputColumns = outputColumns;
+    this.hitPolicy = hitPolicy;
   }
 
   public InputOutputColumns determineInputOutputs(Spreadsheet context) {
@@ -62,7 +68,7 @@ public class StaticInputOutputDetectionStrategy extends BaseAdapter {
 
   @Override
   public HitPolicy determineHitPolicy(Spreadsheet context) {
-    return null;
+    return hitPolicy;
   }
 
   @Override
