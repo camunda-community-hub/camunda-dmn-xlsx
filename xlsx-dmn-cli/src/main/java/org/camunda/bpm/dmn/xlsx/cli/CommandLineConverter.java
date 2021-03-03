@@ -65,9 +65,9 @@ public class CommandLineConverter {
 
       if ("--policy".equals(args[i])) {
         try {
-          policy = HitPolicy.valueOf(args[i].toUpperCase());
+          policy = HitPolicy.valueOf(args[i + 1].toUpperCase());
         } catch (Exception e) {
-          System.out.println("Invalid policy argument: " + policy);
+          System.out.println("Invalid policy argument: " + args[i + 1]);
           System.out.println("Continuing without policy...");
         }
       }
