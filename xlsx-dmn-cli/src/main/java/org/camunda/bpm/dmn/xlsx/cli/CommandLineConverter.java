@@ -24,6 +24,7 @@ import org.camunda.bpm.dmn.xlsx.XlsxConverter;
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
 import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
+import org.camunda.bpm.model.dmn.HitPolicy;
 
 /**
  * @author Thorben Lindhauer
@@ -36,7 +37,7 @@ public class CommandLineConverter {
     if (args.length == 0) {
       final String LINE_SEPARATOR = System.getProperty("line.separator");
       StringBuilder sb = new StringBuilder();
-      sb.append("Usage: java -jar ...jar [--inputs A,B,C,..] [--outputs D,E,F,...] [--advanced] path/to/file.xlsx path/to/outfile.dmn");
+      sb.append("Usage: java -jar ...jar [--inputs A,B,C,..] [--outputs D,E,F,...] [--policy (UNIQUE,FIRST,PRIORITY,COLLECT,RULE_ORDER,OUTPUT_ORDER)] [--advanced] path/to/file.xlsx path/to/outfile.dmn");
       sb.append(LINE_SEPARATOR);
       sb.append("The use of --advanced negates the --input and --output parameters.");
       System.out.println(sb.toString());
@@ -52,15 +53,23 @@ public class CommandLineConverter {
 
     Set<String> inputs = null;
     Set<String> outputs = null;
+    HitPolicy policy = null;
     for (int i = 0; i < args.length - 2; i++) {
       if ("--inputs".equals(args[i])) {
-        inputs = new HashSet<>();
-        inputs.addAll(Arrays.asList(args[i + 1].split(",")));
+        inputs = new HashSet<>(Arrays.asList(args[i + 1].split(",")));
       }
 
       if ("--outputs".equals(args[i])) {
-        outputs = new HashSet<>();
-        outputs.addAll(Arrays.asList(args[i + 1].split(",")));
+        outputs = new HashSet<>(Arrays.asList(args[i + 1].split(",")));
+      }
+
+      if ("--policy".equals(args[i])) {
+        try {
+          policy = HitPolicy.valueOf(args[i].toUpperCase());
+        } catch (Exception e) {
+          System.out.println("Invalid policy argument: " + policy);
+          System.out.println("Continuing without policy...");
+        }
       }
 
       if ("--advanced".equals(args[i])) {
@@ -74,7 +83,7 @@ public class CommandLineConverter {
 
 
     if (inputs != null && outputs != null) {
-      ioStrategy = new StaticInputOutputDetectionStrategy(inputs, outputs);
+      ioStrategy = new StaticInputOutputDetectionStrategy(inputs, outputs, policy);
       converter.setIoDetectionStrategy(ioStrategy);
     }
 
