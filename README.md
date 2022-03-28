@@ -48,7 +48,7 @@ Usage
 
 #### Command Line
 
-1. [Download the command line tool](https://app.camunda.com/nexus/content/groups/public/org/camunda/bpm/extension/dmn/dmn-xlsx-cli/0.2.0/dmn-xlsx-cli-0.2.0.jar). It is a runnable jar file, so you need to have Java installed.
+1. [Download the command line tool](https://artifacts.camunda.com/artifactory/public/org/camunda/bpm/extension/dmn/dmn-xlsx-cli/0.2.0/dmn-xlsx-cli-0.2.0.jar). It is a runnable jar file, so you need to have Java installed.
 2. Take an Excel file that contains a decision to convert and place it next to the downloaded jar.
 3. Execute `java -jar dmn-xlsx-cli-0.2.0.jar --inputs A,B,C --outputs D,E,F path/to/input/file.xlsx path/to/output/file.dmn`. Note that this example assumes the columns A, B, and C are inputs and D, E, F are outputs. You can set these as you like.
 4. Obtain the dmn table and import it in Camunda modeler or in the [online DMN table editor](http://demo.bpmn.io/dmn).
