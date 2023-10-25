@@ -16,15 +16,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
 import java.util.Iterator;
-
-import org.camunda.bpm.model.dmn.Dmn;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.bpm.model.dmn.HitPolicy;
 import org.camunda.bpm.model.dmn.instance.DecisionTable;
 import org.camunda.bpm.model.dmn.instance.Input;
 import org.camunda.bpm.model.dmn.instance.InputEntry;
 import org.camunda.bpm.model.dmn.instance.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Thorben Lindhauer
@@ -32,7 +30,7 @@ import org.junit.Test;
  */
 public class XslxToDmnConversionTest {
 
-  public static final String DMN_11_NAMESPACE = "http://www.omg.org/spec/DMN/20151101/dmn.xsd";
+  public static final String DMN_11_NAMESPACE = "https://www.omg.org/spec/DMN/20191111/MODEL/";
 
   private static final String JAVASCRIPT_SNIPPET =
           "if (exp1 % 2 == 0)\n" +

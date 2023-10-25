@@ -30,6 +30,10 @@ import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
  */
 public class XlsxConverter {
 
+  public static final String DEFAULT_HISTORY_TIME_TO_LIVE = "P180D";
+
+  protected String historyTimeToLive = DEFAULT_HISTORY_TIME_TO_LIVE;
+
   protected SpreadsheetAdapter ioDetectionStrategy = new SimpleInputOutputDetectionStrategy();
 
   public DmnModelInstance convert(InputStream inputStream) {
@@ -62,7 +66,7 @@ public class XlsxConverter {
       throw new RuntimeException("Could not determine worksheet", e);
     }
 
-    return new XlsxWorksheetConverter(worksheetContext, ioDetectionStrategy).convert();
+    return new XlsxWorksheetConverter(worksheetContext, ioDetectionStrategy, historyTimeToLive).convert();
   }
 
   public SpreadsheetAdapter getIoDetectionStrategy() {
@@ -73,4 +77,11 @@ public class XlsxConverter {
     this.ioDetectionStrategy = ioDetectionStrategy;
   }
 
+  public String getHistoryTimeToLive() {
+    return historyTimeToLive;
+  }
+
+  public void setHistoryTimeToLive(String historyTimeToLive) {
+    this.historyTimeToLive = historyTimeToLive;
+  }
 }
