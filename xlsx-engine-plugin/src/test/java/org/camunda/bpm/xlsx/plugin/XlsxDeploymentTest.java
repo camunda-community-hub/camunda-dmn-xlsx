@@ -17,52 +17,52 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collection;
 
 import org.camunda.bpm.dmn.engine.DmnDecisionTableResult;
+import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.repository.DecisionDefinition;
 import org.camunda.bpm.engine.test.Deployment;
-import org.camunda.bpm.engine.test.ProcessEngineRule;
+import org.camunda.bpm.engine.test.junit5.ProcessEngineExtension;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.bpm.model.dmn.instance.DecisionTable;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Thorben Lindhauer
  *
  */
+@ExtendWith(ProcessEngineExtension.class)
 public class XlsxDeploymentTest {
 
-  @Rule
-  public ProcessEngineRule rule = new ProcessEngineRule();
-
+  public ProcessEngine processEngine;
   protected String deployment;
 
-  @After
+  @AfterEach
   public void tearDown() {
     if (deployment != null) {
-      rule.getRepositoryService().deleteDeployment(deployment, true);
+      processEngine.getRepositoryService().deleteDeployment(deployment, true);
     }
   }
 
   @Test
   public void testXlsxDeployment() {
     // when
-    deployment = rule.getRepositoryService()
+    deployment = processEngine.getRepositoryService()
       .createDeployment()
       .addClasspathResource("test1.xlsx")
       .deploy()
       .getId();
 
     // then
-    DecisionDefinition decisionDefinition = rule.getRepositoryService().createDecisionDefinitionQuery().singleResult();
+    DecisionDefinition decisionDefinition = processEngine.getRepositoryService().createDecisionDefinitionQuery().singleResult();
     assertThat(decisionDefinition).isNotNull();
   }
 
   @Test
   public void testXlsxDeploymentWithMetaData() {
     // when
-    deployment = rule.getRepositoryService()
+    deployment = processEngine.getRepositoryService()
       .createDeployment()
       .addClasspathResource("test1.xlsx")
       .addClasspathResource("test1.xlsx.yaml")
@@ -70,10 +70,10 @@ public class XlsxDeploymentTest {
       .getId();
 
     // then
-    DecisionDefinition decisionDefinition = rule.getRepositoryService().createDecisionDefinitionQuery().singleResult();
+    DecisionDefinition decisionDefinition = processEngine.getRepositoryService().createDecisionDefinitionQuery().singleResult();
     assertThat(decisionDefinition).isNotNull();
 
-    DmnModelInstance dmnModel = rule.getRepositoryService().getDmnModelInstance(decisionDefinition.getId());
+    DmnModelInstance dmnModel = processEngine.getRepositoryService().getDmnModelInstance(decisionDefinition.getId());
     Collection<DecisionTable> decisionTables = dmnModel.getModelElementsByType(DecisionTable.class);
     assertThat(decisionTables).hasSize(1);
 
@@ -87,15 +87,15 @@ public class XlsxDeploymentTest {
   @Deployment(resources = "test1.xlsx")
   public void testXlsxEvaluation() {
     // given
-    DecisionDefinition decisionDefinition = rule.getRepositoryService().createDecisionDefinitionQuery().singleResult();
+    DecisionDefinition decisionDefinition = processEngine.getRepositoryService().createDecisionDefinitionQuery().singleResult();
 
     // when
-    DmnDecisionTableResult result = rule.getDecisionService().evaluateDecisionTableById(decisionDefinition.getId(),
+    DmnDecisionTableResult result = processEngine.getDecisionService().evaluateDecisionTableById(decisionDefinition.getId(),
         Variables.createVariables().putValue("input1", "foo").putValue("input2", 15));
 
     // then
     assertThat(result.getResultList()).hasSize(1);
-    assertThat(result.getSingleResult().getEntryMap()).hasSize(1);
-    assertThat(result.getSingleResult().getSingleEntry()).isEqualTo("foofoo");
+    assertThat(result.getFirstResult().getEntryMap()).hasSize(1);
+    assertThat((String)result.getFirstResult().getSingleEntry()).isEqualTo("foofoo");
   }
 }

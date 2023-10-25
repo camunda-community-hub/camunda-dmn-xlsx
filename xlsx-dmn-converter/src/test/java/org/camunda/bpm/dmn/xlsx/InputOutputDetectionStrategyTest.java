@@ -16,21 +16,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
 import java.util.Collections;
-
 import org.camunda.bpm.model.dmn.DmnModelInstance;
 import org.camunda.bpm.model.dmn.instance.DecisionTable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Thorben Lindhauer
- *
  */
 public class InputOutputDetectionStrategyTest {
 
   @Test
   public void testStaticDetectionStrategy() {
     XlsxConverter converter = new XlsxConverter();
-    converter.setIoDetectionStrategy(new StaticInputOutputDetectionStrategy(Collections.singleton("B"), Collections.singleton("D")));
+    converter.setIoDetectionStrategy(
+        new StaticInputOutputDetectionStrategy(Collections.singleton("B"),
+            Collections.singleton("D")));
     InputStream inputStream = TestHelper.getClassPathResource("test2.xlsx");
     DmnModelInstance dmnModelInstance = converter.convert(inputStream);
     assertThat(dmnModelInstance).isNotNull();

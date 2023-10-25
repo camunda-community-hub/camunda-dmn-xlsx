@@ -50,14 +50,17 @@ public class XlsxWorksheetConverter {
     CellContentHandler.DEFAULT_HANDLERS.add(new DmnValueNumberConverter());
   }
 
+  protected final String historyTimeToLive;
+
   protected XlsxWorksheetContext worksheetContext;
   protected DmnConversionContext dmnConversionContext;
   protected SpreadsheetAdapter spreadsheetAdapter;
 
-  public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext, SpreadsheetAdapter spreadsheetAdapter) {
+  public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext, SpreadsheetAdapter spreadsheetAdapter, String historyTimeToLive) {
     this.worksheetContext = worksheetContext;
     this.dmnConversionContext = new DmnConversionContext(worksheetContext, spreadsheetAdapter.getCellContentHandlers(worksheetContext));
     this.spreadsheetAdapter = spreadsheetAdapter;
+    this.historyTimeToLive = historyTimeToLive;
   }
 
   public DmnModelInstance convert() {
@@ -66,6 +69,7 @@ public class XlsxWorksheetConverter {
 
     Decision decision = generateElement(dmnModel, Decision.class, worksheetContext.getName());
     decision.setName(spreadsheetAdapter.determineDecisionName(worksheetContext));
+    decision.setCamundaHistoryTimeToLiveString(historyTimeToLive);
     dmnModel.getDefinitions().addChildElement(decision);
 
     DecisionTable decisionTable = generateElement(dmnModel, DecisionTable.class, "decisionTable");
