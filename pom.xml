@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.camunda</groupId>
         <artifactId>camunda-release-parent</artifactId>
-        <version>2.6</version>
+        <version>3.9.1</version>
         <relativePath />
     </parent>
 
@@ -23,7 +23,21 @@
     </modules>
 
     <properties>
-      <camunda.version>7.8.0</camunda.version>
+      <version.java>17</version.java>
+      <maven.compiler.source>${version.java}</maven.compiler.source>
+      <maven.compiler.target>${version.java}</maven.compiler.target>
+
+      <version.maven.gpg.plugin>3.1.0</version.maven.gpg.plugin>
+      <version.maven.shade.plugin>3.5.1</version.maven.shade.plugin>
+
+      <version.assertj>3.24.2</version.assertj>
+      <version.camunda>7.20.0</version.camunda>
+      <version.docx4j>11.4.9</version.docx4j>
+      <version.h2>2.2.224</version.h2>
+      <version.junit>5.10.0</version.junit>
+      <version.log4j>2.21.1</version.log4j>
+      <version.snakeyml>2.2</version.snakeyml>
+      
       <additionalparam>-Xdoclint:none</additionalparam>
     </properties>
 
@@ -32,44 +46,59 @@
         <dependency>
           <groupId>org.camunda.bpm</groupId>
           <artifactId>camunda-bom</artifactId>
-          <version>${camunda.version}</version>
+          <version>${version.camunda}</version>
           <type>pom</type>
           <scope>import</scope>
         </dependency>
-        
+         <dependency>
+           <groupId>org.yaml</groupId>
+           <artifactId>snakeyaml</artifactId>
+           <version>${version.snakeyml}</version>
+         </dependency>
+
         <dependency>
           <groupId>org.assertj</groupId>
           <artifactId>assertj-core</artifactId>
-          <version>2.9.1</version>
+          <version>${version.assertj}</version>
         </dependency>
-        
+
+         <dependency>
+           <groupId>org.apache.logging.log4j</groupId>
+           <artifactId>log4j-api</artifactId>
+           <version>${version.log4j}</version>
+         </dependency>
+         <dependency>
+           <groupId>org.apache.logging.log4j</groupId>
+           <artifactId>log4j-core</artifactId>
+           <version>${version.log4j}</version>
+         </dependency>
         <dependency>
           <groupId>org.apache.logging.log4j</groupId>
-          <artifactId>log4j-core</artifactId>
-          <version>2.11.1</version>
+          <artifactId>log4j-slf4j2-impl</artifactId>
+          <version>${version.log4j}</version>
         </dependency>
-        
-        <dependency>
-          <groupId>org.apache.logging.log4j</groupId>
-          <artifactId>log4j-slf4j-impl</artifactId>
-          <version>2.11.1</version>
-        </dependency>
-      </dependencies>
+
+         <dependency>
+           <groupId>org.junit.jupiter</groupId>
+           <artifactId>junit-jupiter-api</artifactId>
+           <version>${version.junit}</version>
+         </dependency>
+         <dependency>
+           <groupId>org.junit.jupiter</groupId>
+           <artifactId>junit-jupiter-params</artifactId>
+           <version>${version.junit}</version>
+         </dependency>
+         <dependency>
+           <groupId>com.h2database</groupId>
+           <artifactId>h2</artifactId>
+           <version>${version.h2}</version>
+         </dependency>
+
+       </dependencies>
     </dependencyManagement>
 
     <build>
       <defaultGoal>clean install</defaultGoal>
-       
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
-          </configuration>
-        </plugin>
-      </plugins>
     </build>
 
     <licenses>
@@ -109,7 +138,7 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-gpg-plugin</artifactId>
-              <version>1.6</version>
+              <version>3.1.0</version>
               <executions>
                   <execution>
                       <id>sign-artifacts</id>

@@ -12,6 +12,8 @@
  */
 package org.camunda.bpm.xlsx.plugin;
 
+import static org.camunda.bpm.dmn.xlsx.XlsxConverter.DEFAULT_HISTORY_TIME_TO_LIVE;
+
 import java.util.Set;
 
 import org.camunda.bpm.dmn.xlsx.StaticInputOutputDetectionStrategy;
@@ -23,8 +25,17 @@ import org.camunda.bpm.dmn.xlsx.XlsxConverter;
  */
 public class XlsxDeploymentMetaData {
 
+  protected String historyTimeToLive = DEFAULT_HISTORY_TIME_TO_LIVE;
   protected Set<String> inputs;
   protected Set<String> outputs;
+
+  public String getHistoryTimeToLive() {
+    return historyTimeToLive;
+  }
+
+  public void setHistoryTimeToLive(String historyTimeToLive) {
+    this.historyTimeToLive = historyTimeToLive;
+  }
 
   public Set<String> getInputColumns() {
     return inputs;
@@ -47,6 +58,7 @@ public class XlsxDeploymentMetaData {
       StaticInputOutputDetectionStrategy ioDetectionStrategy =
           new StaticInputOutputDetectionStrategy(inputs, outputs);
       converter.setIoDetectionStrategy(ioDetectionStrategy);
+      converter.setHistoryTimeToLive(historyTimeToLive);
     }
   }
 
