@@ -6,8 +6,6 @@
 #        commits the version update change to the repository's default branch.
 name: Deploy artifacts with Maven
 on:
-  push:
-    branches: [master]
   release:
     types: [published]
 jobs:
@@ -29,7 +27,7 @@ jobs:
         java-version: 17
         gpg-private-key: ${{ secrets.MAVEN_CENTRAL_GPG_SIGNING_KEY_SEC }}
         gpg-passphrase: MAVEN_CENTRAL_GPG_PASSPHRASE
-    - name: Deploy SNAPSHOT / Release
+    - name: Release
       uses: camunda-community-hub/community-action-maven-release@v1.0.9
       with:
         release-version: ${{ github.event.release.tag_name }}
@@ -41,8 +39,7 @@ jobs:
         maven-gpg-passphrase: ${{ secrets.MAVEN_CENTRAL_GPG_SIGNING_KEY_PASSPHRASE }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
       id: release
-    - if: github.event.release
-      name: Attach artifacts to GitHub Release (Release only)
+    - name: Attach artifacts to GitHub Release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
