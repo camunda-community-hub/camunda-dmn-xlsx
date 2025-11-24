@@ -12,7 +12,9 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
 import org.camunda.bpm.dmn.xlsx.elements.IndexedDmnColumns;
@@ -27,6 +29,7 @@ public class DmnConversionContext {
   protected final XlsxWorksheetContext worksheetContext;
 
   protected IndexedDmnColumns indexedDmnColumns = new IndexedDmnColumns();
+  protected final Map<String, String> resolvedValueCache = new HashMap<>();
 
   public DmnConversionContext(XlsxWorksheetContext worksheetContext, List<CellContentHandler> cellContentHandlers) {
     this.worksheetContext = worksheetContext;
@@ -34,13 +37,25 @@ public class DmnConversionContext {
   }
 
   public String resolveCellValue(SpreadsheetCell cell) {
+    // Create cache key from cell coordinates
+    String cacheKey = cell.getColumn() + cell.getRow();
+    
+    // Check cache first
+    String cached = resolvedValueCache.get(cacheKey);
+    if (cached != null) {
+      return cached;
+    }
+    
+    // Find appropriate handler and convert
     for (CellContentHandler contentHandler : cellContentHandlers) {
       if (contentHandler.canConvert(cell, worksheetContext)) {
-        return contentHandler.convert(cell, worksheetContext);
+        String result = contentHandler.convert(cell, worksheetContext);
+        resolvedValueCache.put(cacheKey, result);
+        return result;
       }
     }
+    
     throw new RuntimeException("cannot parse cell content, unsupported format");
-
   }
 
   public IndexedDmnColumns getIndexedDmnColumns() {

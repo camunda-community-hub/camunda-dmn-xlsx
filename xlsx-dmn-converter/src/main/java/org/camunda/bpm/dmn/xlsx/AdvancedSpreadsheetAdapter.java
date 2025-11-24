@@ -32,15 +32,18 @@ public class AdvancedSpreadsheetAdapter extends BaseAdapter {
 
     List<SpreadsheetCell> cells = headerRow.getCells();
 
+    // First pass: identify input/output columns
     for (SpreadsheetCell indexedCell : cells) {
-      if("input".equalsIgnoreCase(context.resolveCellContent(indexedCell))) {
+      String cellContent = context.resolveCellContent(indexedCell);
+      if("input".equalsIgnoreCase(cellContent)) {
         inputColumns.add(indexedCell.getColumn());
       }
-      if("output".equalsIgnoreCase(context.resolveCellContent(indexedCell))) {
+      else if("output".equalsIgnoreCase(cellContent)) {
         outputColumns.add(indexedCell.getColumn());
       }
     }
 
+    // Second pass: build header value containers
     InputOutputColumns columns = new InputOutputColumns();
     int idCounter = 0;
     for (String column : inputColumns) {
@@ -50,7 +53,7 @@ public class AdvancedSpreadsheetAdapter extends BaseAdapter {
       fillHvc(context, column, hvc);
       columns.addInputHeader(hvc);
     }
-    idCounter= 0;
+    idCounter = 0;
     for (String column : outputColumns) {
       idCounter++;
       HeaderValuesContainer hvc = new HeaderValuesContainer();
@@ -85,14 +88,25 @@ public class AdvancedSpreadsheetAdapter extends BaseAdapter {
 
   private void fillHvc(Spreadsheet context, String column, HeaderValuesContainer hvc) {
     SpreadsheetCell cell;
-    cell = context.getRows().get(1).getCell(column);
+
+    // Get all cells for this column at once to minimize lookups
+    SpreadsheetRow row1 = context.getRows().get(1);
+    SpreadsheetRow row2 = context.getRows().get(2);
+    SpreadsheetRow row3 = context.getRows().get(3);
+    SpreadsheetRow row4 = context.getRows().get(4);
+
+    cell = row1.getCell(column);
     hvc.setLabel(context.resolveCellContent(cell));
-    cell = context.getRows().get(2).getCell(column);
+
+    cell = row2.getCell(column);
     hvc.setExpressionLanguage(context.resolveCellContent(cell));
-    cell = context.getRows().get(3).getCell(column);
+
+    cell = row3.getCell(column);
     hvc.setText(context.resolveCellContent(cell));
-    cell = context.getRows().get(4).getCell(column);
+
+    cell = row4.getCell(column);
     hvc.setTypeRef(context.resolveCellContent(cell));
+
     hvc.setColumn(column);
   }
 

@@ -13,7 +13,9 @@
 package org.camunda.bpm.dmn.xlsx;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.camunda.bpm.dmn.xlsx.api.Spreadsheet;
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetCell;
@@ -39,6 +41,7 @@ public class XlsxWorksheetContext implements Spreadsheet {
 
   // cached state
   protected List<SpreadsheetRow> indexedRows;
+  protected final Map<String, String> cellContentCache = new HashMap<>();
 
   public XlsxWorksheetContext(CTSst sharedStrings, Worksheet worksheet, String worksheetName) {
     this.sharedStrings = sharedStrings;
@@ -64,16 +67,30 @@ public class XlsxWorksheetContext implements Spreadsheet {
 
   @Override
   public String resolveCellContent(SpreadsheetCell cell) {
+    // Create cache key from cell reference
+    String cacheKey = cell.getColumn() + cell.getRow();
+    
+    // Check cache first
+    String cached = cellContentCache.get(cacheKey);
+    if (cached != null) {
+      return cached;
+    }
+    
     Cell rawCell = cell.getRaw();
+    String result;
 
     STCellType cellType = rawCell.getT();
     if (STCellType.S.equals(cellType)) {
       int sharedStringIndex = Integer.parseInt(rawCell.getV());
-      return resolveSharedString(sharedStringIndex);
+      result = resolveSharedString(sharedStringIndex);
     }
     else {
-      return rawCell.getV();
+      result = rawCell.getV();
     }
+    
+    // Cache the result
+    cellContentCache.put(cacheKey, result);
+    return result;
   }
 
   @Override

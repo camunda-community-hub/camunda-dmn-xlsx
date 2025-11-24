@@ -12,6 +12,7 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.camunda.bpm.dmn.xlsx.api.SpreadsheetAdapter;
@@ -55,6 +56,8 @@ public class XlsxWorksheetConverter {
   protected XlsxWorksheetContext worksheetContext;
   protected DmnConversionContext dmnConversionContext;
   protected SpreadsheetAdapter spreadsheetAdapter;
+  
+  protected int idCounter = 0;
 
   public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext, SpreadsheetAdapter spreadsheetAdapter, String historyTimeToLive) {
     this.worksheetContext = worksheetContext;
@@ -77,7 +80,7 @@ public class XlsxWorksheetConverter {
 
     setHitPolicy(decisionTable);
     convertInputsOutputs(dmnModel, decisionTable);
-    convertRules(dmnModel, decisionTable, spreadsheetAdapter.determineRuleRows(worksheetContext));
+    convertRulesBatch(dmnModel, decisionTable, spreadsheetAdapter.determineRuleRows(worksheetContext));
 
     return dmnModel;
   }
@@ -139,46 +142,79 @@ public class XlsxWorksheetConverter {
 
   }
 
-  protected void convertRules(DmnModelInstance dmnModel, DecisionTable decisionTable, List<SpreadsheetRow> rulesRows) {
-    for (SpreadsheetRow rule : rulesRows) {
-      convertRule(dmnModel, decisionTable, rule);
+  /**
+   * Optimized batch conversion that creates all rules first, then adds them to the decision table
+   * This avoids O(n²) performance when adding many child elements
+   */
+  protected void convertRulesBatch(DmnModelInstance dmnModel, DecisionTable decisionTable, List<SpreadsheetRow> rulesRows) {
+    // Pre-fetch column mappings once
+    IndexedDmnColumns dmnColumns = dmnConversionContext.getIndexedDmnColumns();
+    List<Input> orderedInputs = dmnColumns.getOrderedInputs();
+    List<Output> orderedOutputs = dmnColumns.getOrderedOutputs();
+    int numInputs = orderedInputs.size();
+    int numOutputs = orderedOutputs.size();
+    
+    // Build all rules first (without adding to decision table)
+    List<Rule> rules = new ArrayList<>(rulesRows.size());
+    
+    for (SpreadsheetRow ruleRow : rulesRows) {
+      Rule rule = buildRule(dmnModel, ruleRow, orderedInputs, orderedOutputs, numInputs, numOutputs);
+      rules.add(rule);
+    }
+    
+    // Now add all rules to decision table in batch
+    for (Rule rule : rules) {
+      decisionTable.addChildElement(rule);
     }
   }
 
-  protected void convertRule(DmnModelInstance dmnModel, DecisionTable decisionTable, SpreadsheetRow ruleRow) {
+  /**
+   * Build a single rule without adding it to the decision table
+   */
+  protected Rule buildRule(DmnModelInstance dmnModel, SpreadsheetRow ruleRow, 
+                          List<Input> orderedInputs, List<Output> orderedOutputs,
+                          int numInputs, int numOutputs) {
+    
     Rule rule = generateElement(dmnModel, Rule.class, "excelRow" + ruleRow.getRaw().getR());
-    decisionTable.addChildElement(rule);
-
     IndexedDmnColumns dmnColumns = dmnConversionContext.getIndexedDmnColumns();
+    String defaultContent = getDefaultCellContent();
+    long rowNumber = ruleRow.getRaw().getR();
 
-    for (Input input : dmnColumns.getOrderedInputs()) {
+    // Process inputs
+    for (int i = 0; i < numInputs; i++) {
+      Input input = orderedInputs.get(i);
       String xlsxColumn = dmnColumns.getSpreadsheetColumn(input);
       SpreadsheetCell cell = ruleRow.getCell(xlsxColumn);
-      String coordinate = xlsxColumn + ruleRow.getRaw().getR();
+      String coordinate = xlsxColumn + rowNumber;
 
       InputEntry inputEntry = generateElement(dmnModel, InputEntry.class, coordinate);
-      String textValue = cell != null ? dmnConversionContext.resolveCellValue(cell) : getDefaultCellContent();
+      String textValue = cell != null ? dmnConversionContext.resolveCellValue(cell) : defaultContent;
       Text text = generateText(dmnModel, textValue);
       inputEntry.setText(text);
       rule.addChildElement(inputEntry);
     }
 
-    for (Output output : dmnColumns.getOrderedOutputs()) {
+    // Process outputs
+    for (int i = 0; i < numOutputs; i++) {
+      Output output = orderedOutputs.get(i);
       String xlsxColumn = dmnColumns.getSpreadsheetColumn(output);
       SpreadsheetCell cell = ruleRow.getCell(xlsxColumn);
-      String coordinate = xlsxColumn + ruleRow.getRaw().getR();
+      String coordinate = xlsxColumn + rowNumber;
 
       OutputEntry outputEntry = generateElement(dmnModel, OutputEntry.class, coordinate);
-      String textValue = cell != null ? dmnConversionContext.resolveCellValue(cell) : getDefaultCellContent();
+      String textValue = cell != null ? dmnConversionContext.resolveCellValue(cell) : defaultContent;
       Text text = generateText(dmnModel, textValue);
       outputEntry.setText(text);
       rule.addChildElement(outputEntry);
     }
 
-    SpreadsheetCell annotationCell = ruleRow.getCells().get(ruleRow.getCells().size() - 1);
-    Description description =  generateDescription(dmnModel, worksheetContext.resolveCellContent(annotationCell));
+    // Add description
+    List<SpreadsheetCell> cells = ruleRow.getCells();
+    SpreadsheetCell annotationCell = cells.get(cells.size() - 1);
+    Description description = generateDescription(dmnModel, worksheetContext.resolveCellContent(annotationCell));
     rule.setDescription(description);
 
+    return rule;
   }
 
   protected String getDefaultCellContent() {
@@ -207,11 +243,10 @@ public class XlsxWorksheetConverter {
   }
 
   /**
-   * With a generated id
+   * With a generated id - using counter instead of random for better performance
    */
   public <E extends DmnElement> E generateElement(DmnModelInstance modelInstance, Class<E> elementClass) {
-    // TODO: use a proper generator for random IDs
-    String generatedId = elementClass.getSimpleName() + Integer.toString((int) (Integer.MAX_VALUE * Math.random()));
+    String generatedId = elementClass.getSimpleName() + (idCounter++);
     return generateElement(modelInstance, elementClass, generatedId);
   }
 
@@ -221,9 +256,9 @@ public class XlsxWorksheetConverter {
     return text;
   }
 
-  protected  Description generateDescription(DmnModelInstance dmnModel, String content) {
-      Description description =  dmnModel.newInstance(Description.class);
-      description.setTextContent(content);
-      return description;
+  protected Description generateDescription(DmnModelInstance dmnModel, String content) {
+    Description description = dmnModel.newInstance(Description.class);
+    description.setTextContent(content);
+    return description;
   }
 }
