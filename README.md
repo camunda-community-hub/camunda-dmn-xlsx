@@ -1,6 +1,6 @@
 [![](https://img.shields.io/badge/Community%20Extension-An%20open%20source%20community%20maintained%20project-FF4700)](https://github.com/camunda-community-hub/community)
-[![](https://img.shields.io/badge/Lifecycle-Abandoned-lightgrey)](https://github.com/Camunda-Community-Hub/community/blob/main/extension-lifecycle.md#abandoned-)
-[![](https://img.shields.io/badge/Lifecycle-Needs%20Maintainer%20-ff69b4)](https://github.com/Camunda-Community-Hub/community/blob/main/extension-lifecycle.md#abandoned-)
+![Compatible with: Camunda 7](https://img.shields.io/badge/Compatible%20with-Camunda%207-26d07c)
+[![](https://img.shields.io/badge/Lifecycle-Incubating-blue)](https://github.com/Camunda-Community-Hub/community/blob/main/extension-lifecycle.md#incubating-)
 
 Excel table to DMN decision table converter
 ===========================================
@@ -48,9 +48,9 @@ Usage
 
 #### Command Line
 
-1. [Download the command line tool](https://artifacts.camunda.com/artifactory/public/org/camunda/bpm/extension/dmn/dmn-xlsx-cli/0.2.0/dmn-xlsx-cli-0.2.0.jar). It is a runnable jar file, so you need to have Java installed.
+1. [Download the command line tool](https://artifacts.camunda.com/artifactory/public/org/camunda/bpm/extension/dmn/dmn-xlsx-cli/0.4.0/dmn-xlsx-cli-0.4.0.jar). It is a runnable jar file, so you need to have Java installed.
 2. Take an Excel file that contains a decision to convert and place it next to the downloaded jar.
-3. Execute `java -jar dmn-xlsx-cli-0.2.0.jar --inputs A,B,C --outputs D,E,F path/to/input/file.xlsx path/to/output/file.dmn`. Note that this example assumes the columns A, B, and C are inputs and D, E, F are outputs. You can set these as you like.
+3. Execute `java -jar dmn-xlsx-cli-0.4.0.jar --inputs A,B,C --outputs D,E,F path/to/input/file.xlsx path/to/output/file.dmn`. Note that this example assumes the columns A, B, and C are inputs and D, E, F are outputs. You can set these as you like.
 4. Obtain the dmn table and import it in Camunda modeler or in the [online DMN table editor](http://demo.bpmn.io/dmn).
 
 #### Java
@@ -63,7 +63,7 @@ To use the Java library, add the following Maven dependency to your project:
 <dependency>
   <groupId>org.camunda.bpm.extension.dmn</groupId>
   <artifactId>dmn-xlsx-converter</artifactId>
-  <version>0.2.0</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
@@ -97,7 +97,7 @@ The process engine artifact can be obtained via the following Maven coordinates:
 <dependency>
   <groupId>org.camunda.bpm.extension.dmn</groupId>
   <artifactId>dmn-xlsx-process-engine-plugin</artifactId>
-  <version>0.2.0</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
