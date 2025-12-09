@@ -12,6 +12,9 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.camunda.bpm.dmn.xlsx.api.Spreadsheet;
@@ -27,19 +30,32 @@ public class DmnValueRangeConverter implements CellContentHandler {
 
   public static final Pattern RANGE_REGEX = Pattern.compile("[\\[\\]](?:[0-9.]+|(?:date and time\\(.+\\)))\\.\\.(?:[0-9.]+|(?:date and time\\(.+\\)))[\\[\\]]");
 
+  // Cache regex match results to avoid repeated pattern matching
+  private final Map<String, Boolean> matchCache = new HashMap<>();
+
   @Override
   public boolean canConvert(SpreadsheetCell cell, Spreadsheet context) {
     Cell rawCell = cell.getRaw();
 
-    if (STCellType.S.equals(rawCell.getT()))
-    {
-      String content = context.resolveCellContent(cell);
-      return RANGE_REGEX.matcher(content).matches();
-    }
-    else
+    if (!STCellType.S.equals(rawCell.getT()))
     {
       return false;
     }
+
+    String content = context.resolveCellContent(cell);
+    
+    // Check cache first
+    Boolean cached = matchCache.get(content);
+    if (cached != null)
+    {
+      return cached;
+    }
+    
+    // Perform regex match and cache result
+    boolean matches = RANGE_REGEX.matcher(content).matches();
+    matchCache.put(content, matches);
+    
+    return matches;
   }
 
   @Override
