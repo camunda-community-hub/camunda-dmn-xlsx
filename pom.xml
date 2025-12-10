@@ -36,7 +36,7 @@
     <version.junit>5.10.0</version.junit>
     <version.log4j>2.21.1</version.log4j>
     <version.snakeyml>2.2</version.snakeyml>
-    <version.maven-release-plugin>3.0.1</version.maven-release-plugin>
+    <version.maven-release-plugin>3.3.0</version.maven-release-plugin>
       
     <additionalparam>-Xdoclint:none</additionalparam>
   </properties>
