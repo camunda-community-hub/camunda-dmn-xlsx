@@ -29,7 +29,7 @@
 
     <version.maven.shade.plugin>3.5.1</version.maven.shade.plugin>
 
-    <version.assertj>3.24.2</version.assertj>
+    <version.assertj>3.27.6</version.assertj>
     <version.camunda>7.20.0</version.camunda>
     <version.docx4j>11.4.9</version.docx4j>
     <version.h2>2.2.224</version.h2>
