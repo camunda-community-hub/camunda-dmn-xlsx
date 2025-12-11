@@ -33,7 +33,7 @@
     <version.camunda>7.20.0</version.camunda>
     <version.docx4j>11.4.9</version.docx4j>
     <version.h2>2.2.224</version.h2>
-    <version.junit>5.10.0</version.junit>
+    <version.junit>5.14.1</version.junit>
     <version.log4j>2.21.1</version.log4j>
     <version.snakeyml>2.2</version.snakeyml>
     <version.maven-release-plugin>3.3.0</version.maven-release-plugin>
